@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Perpustakaan Sekolah</title>
+    <!-- Google Fonts untuk font sans-serif modern -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome untuk ikon minimalis -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Hubungkan ke file style.css pastel kita -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div class="app-container">
+        <!-- HEADER UTAMA -->
+        <header class="main-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-book-bookmark icon-logo"></i>
+                <div>
+                    <h1>Ruang Baca</h1>
+                    <p>Perpustakaan SD Negeri Senden 2</p>
+                </div>
+            </div>
+            <div class="status-badge" id="connection-status">
+                <span class="dot-loading"></span> Memuat Data...
+            </div>
+        </header>
+
+        <!-- KONTEN UTAMA (GRID SYSTEM) -->
+        <main class="main-content">
+            
+            <!-- SISI KIRI: FORM PINJAM BUKU -->
+            <section class="card-panel form-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-pen-to-square"></i> Catat Peminjaman</h2>
+                <form id="form-peminjaman">
+                    
+                    <!-- Input Data Siswa -->
+                    <div class="form-group">
+                        <label for="cari-siswa">Nama Siswa</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text" id="cari-siswa" placeholder="Ketik nama siswa..." autocomplete="off" required disabled>
+                        </div>
+                        <!-- Dropdown rekomendasi siswa -->
+                        <div id="dropdown-siswa" class="autocomplete-dropdown"></div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="id-siswa">ID Siswa</label>
+                            <input type="text" id="id-siswa" readonly placeholder="-">
+                        </div>
+                        <div class="form-group">
+                            <label for="kelas-siswa">Kelas</label>
+                            <input type="text" id="kelas-siswa" readonly placeholder="-">
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <!-- Input Data Buku -->
+                    <div class="form-group">
+                        <label for="cari-buku">Judul Buku</label>
+                        <div class="input-with-icon">
+                            <i class="fa-solid fa-book input-icon"></i>
+                            <input type="text" id="cari-buku" placeholder="Ketik judul buku..." autocomplete="off" required disabled>
+                        </div>
+                        <!-- Dropdown rekomendasi buku -->
+                        <div id="dropdown-buku" class="autocomplete-dropdown"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nama-pengarang">Nama Pengarang / Penulis</label>
+                        <input type="text" id="nama-pengarang" placeholder="Nama penulis buku" required>
+                    </div>
+
+                    <!-- Input Stok khusus untuk Buku Baru (Akan disembunyikan/ditampilkan dinamis) -->
+                    <div class="form-group" id="group-stok" style="display: none;">
+                        <label for="stok-total">Jumlah Stok Buku Baru (Eksemplar)</label>
+                        <input type="number" id="stok-total" value="1" min="1">
+                        <small class="info-text">*Buku baru terdeteksi. Berapa total buku ini di rak?</small>
+                    </div>
+
+                    <input type="hidden" id="id-buku">
+
+                    <!-- Tombol Submit -->
+                    <button type="submit" id="btn-simpan" class="btn-submit" disabled>
+                        <i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman
+                    </button>
+                </form>
+            </section>
+
+            <!-- SISI KANAN: TABEL MONITORING -->
+            <section class="card-panel table-panel">
+                <div class="table-header-area">
+                    <h2 class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Buku yang Sedang Dipinjam</h2>
+                    <div class="search-table-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="keyword-tabel" placeholder="Cari di tabel...">
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th>Siswa</th>
+                                <th>Kelas</th>
+                                <th>Buku / Pengarang</th>
+                                <th>Batas Kembali</th>
+                                <th style="text-align: center;">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-log-body">
+                            <!-- Data akan diisi otomatis lewat javascript -->
+                            <tr>
+                                <td colspan="5" class="table-empty-state">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Menghubungkan ke Google Sheets...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Hubungkan ke file script.js kita -->
+    <script src="script.js"></script>
+</body>
+</html>
