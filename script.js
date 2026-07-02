@@ -1,5 +1,5 @@
 // 1. KONFIGURASI UTAMA
-const API_URL = "PASTE_URL_WEB_APP_BARU_KAMU_DISINI";
+const API_URL = "https://script.google.com/macros/s/AKfycbx2AUz9RHxpCHMuIKWL9IfN9TlZ4QVv92x2uCvFxHbdorPwXMoalX0DakbauBXrKQhPag/exec";
 
 // Variabel Global Data Sinkronisasi Sheets
 let masterSiswa = [];
