@@ -18,7 +18,7 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         
         // Ganti baris 'const filtered = ...' dengan yang ini:
 const filtered = dataArray.filter(item => {
-    // Kita paksakan keduanya (data sheets dan input) menjadi huruf kecil sebelum dibandingkan
+    // Kita paksakan keduanya (data sheets dan input) mjd huruf kecil sebelum dibandingkan
     const namaSiswa = item[1] ? String(item[1]).toLowerCase() : "";
     return namaSiswa.includes(val.toLowerCase()); // Pastikan val juga di-toLowerCase
 });
