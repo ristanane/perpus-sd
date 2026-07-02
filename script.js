@@ -201,8 +201,8 @@ formPeminjaman.addEventListener('submit', async function(e) {
 function renderTabelLog(dataLog) {
     tabelBody.innerHTML = '';
     
-    // Filter data yang statusnya hanya "Dipinjam"
-    const dataAktif = dataLog.filter(row => row[9] === "Dipinjam");
+    // Filter data: Pastikan baris memiliki ID Transaksi (bukan baris kosong) dan statusnya "Dipinjam"
+    const dataAktif = dataLog.filter(row => row[0] && row[9] === "Dipinjam");
     
     if (dataAktif.length === 0) {
         tabelBody.innerHTML = `<tr><td colspan="5" class="table-empty-state">🎉 Tidak ada buku yang sedang dipinjam. Semuanya aman!</td></tr>`;
@@ -210,51 +210,34 @@ function renderTabelLog(dataLog) {
     }
     
     dataAktif.forEach(row => {
+        // Deklarasi variabel yang rapi dan urut sesuai kolom Google Sheets
         const idTransaksi = row[0];
+        const idSiswa = row[1];
         const namaSiswa = row[2];
         const kelas = row[3];
         const idBuku = row[4];
         const judulBuku = row[5];
         const pengarang = row[6];
         
-        // Format Tanggal Batas Kembali agar cantik dibaca manusia
-        const tglKembaliRaw = new Date(row[8]);
-        const opsiTgl = { year: 'numeric', month: 'short', day: 'numeric' };
-        const tglFormat = tglKembaliRaw.toLocaleDateString('id-ID', opsiTgl);
-        
-        function renderTabelLog(dataLog) {
-    tabelBody.innerHTML = '';
-    
-    // Filter data yang statusnya hanya "Dipinjam" (Kolom J -> indeks 9)
-    const dataAktif = dataLog.filter(row => row[9] === "Dipinjam");
-    
-    if (dataAktif.length === 0) {
-        tabelBody.innerHTML = `<tr><td colspan="5" class="table-empty-state">🎉 Tidak ada buku yang sedang dipinjam. Semuanya aman!</td></tr>`;
-        return;
-    }
-    
-    dataAktif.forEach(row => {
-        const idTransaksi = row[0];
-        const namaSiswa = row[2];
-        const kelas = row[3];
-        const idBuku = row[4];
-        const judulBuku = row[5];
-        const pengarang = row[6];
-        
-        // Format Tanggal Batas Kembali (Kolom I -> indeks 8)
-        const tglKembaliRaw = new Date(row[8]);
-        const opsiTgl = { year: 'numeric', month: 'short', day: 'numeric' };
-        const tglFormat = tglKembaliRaw.toLocaleDateString('id-ID', opsiTgl);
+        // Format Tanggal Batas Kembali agar cantik dibaca (Kolom I -> indeks 8)
+        let tglFormat = "-";
+        if (row[8]) {
+            const tglKembaliRaw = new Date(row[8]);
+            if (!isNaN(tglKembaliRaw.getTime())) {
+                const opsiTgl = { year: 'numeric', month: 'short', day: 'numeric' };
+                tglFormat = tglKembaliRaw.toLocaleDateString('id-ID', opsiTgl);
+            }
+        }
         
         // Membaca Kolom K (Keterangan -> indeks 10) untuk mendeteksi kata "TERLAMBAT"
-        const isTerlambat = row[10] && row[10].toString().toUpperCase() === "TERLAMBAT";
+        const isTerlambat = row[10] && row[10].toString().trim().toUpperCase() === "TERLAMBAT";
         const kelasBaris = isTerlambat ? 'row-warning' : 'row-normal';
         const labelTerlambat = isTerlambat ? ' <span style="font-weight:700; color:#C62828;">[TERLAMBAT]</span>' : '';
         
         const tr = document.createElement('tr');
         tr.className = kelasBaris;
         tr.innerHTML = `
-            <td><strong>${namaSiswa}</strong><span class="sub-info">ID: ${row[1]}</span></td>
+            <td><strong>${namaSiswa}</strong><span class="sub-info">ID: ${idSiswa}</span></td>
             <td>Kelas ${kelas}</td>
             <td><strong>${judulBuku}</strong><span class="sub-info">Oleh: ${pengarang}</span></td>
             <td>${tglFormat}${labelTerlambat}</td>
