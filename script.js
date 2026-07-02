@@ -131,6 +131,7 @@ document.addEventListener('click', (e) => {
 formPeminjaman.addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // Pastikan input nama siswa tidak kosong
     if (!idSiswaField.value || idSiswaField.value === "-" || idSiswaField.value.trim() === "") {
         alert("⚠️ Harap pilih nama siswa dari rekomendasi yang muncul!");
         return;
@@ -148,6 +149,7 @@ formPeminjaman.addEventListener('submit', async function(e) {
     };
     
     try {
+        // 1. Ubah tombol jadi mode loading berputar
         btnSimpan.disabled = true;
         btnSimpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses Peminjaman...`;
         
@@ -159,25 +161,33 @@ formPeminjaman.addEventListener('submit', async function(e) {
         const hasil = await respon.json();
         
         if (hasil.success) {
+            // 2. JIKA SUKSES: Bersihkan semua form input ke kondisi semula
             formPeminjaman.reset();
             idBukuField.value = '';
-            idSiswaField.value = '-';
-            kelasSiswaField.value = '-';
+            idSiswaField.value = '';
             pengarangField.readOnly = false;
             groupStok.style.display = 'none';
-            // Hanya memperbarui tabel dari data resmi Google Sheets
+            
+            // 3. Kembalikan tombol ke status normal siap pakai
+            resetTombolSimpan();
+            
+            // 4. Segarkan tabel kanan berdasarkan data real-time Google Sheets
             await muatDataAwal();
         } else {
             alert("Gagal menyimpan ke Sheets: " + (hasil.error || "Eror tidak diketahui"));
             resetTombolSimpan();
         }
     } catch (error) {
-        alert("Terjadi masalah komunikasi data. Coba cek setelan 'Anyone' pada deployment Web App.");
         console.error(error);
+        // Jika ada kendala jaringan, tombol tetap harus dikembalikan ke kondisi normal
         resetTombolSimpan();
+        
+        // Pemicu refresh otomatis agar data lokal yang menggantung dibersihkan
+        await muatDataAwal();
     }
 });
 
+// Fungsi pembantu untuk melepas mode loading tombol konfirmasi
 function resetTombolSimpan() {
     btnSimpan.disabled = false;
     btnSimpan.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman`;
