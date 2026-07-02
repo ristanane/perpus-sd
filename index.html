@@ -67,8 +67,21 @@
         .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
         .btn-primary:disabled { background-color: var(--text-muted); opacity: 0.6; }
 
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-top: 4px; }
-        .suggestion-item { padding: 12px 16px; cursor: pointer; font-size: 14px; }
+        .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white !important; /* Paksa warna putih */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 9999 !important; /* Paksa muncul di paling atas */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; /* Pertebal bayangan biar kelihatan */
+    margin-top: 4px;
+    display: none; /* Biarkan ini, nanti JS yang ubah ke block */
+}
         .suggestion-item:hover { background-color: var(--bg-pastel); color: var(--primary-green); }
 
         .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
