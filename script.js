@@ -1,7 +1,7 @@
 // ==========================================================================
 // ⚠️ GANTI LINK DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT-MU!
 // ==========================================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbymOw4jnnNZrz5N7GpHy20S1ubrgb8PnwgTWbrxdtzOCncA5Ap-DQrr3fiq9-FkzhwBiQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzhcMJU35EZoaFQkOsB5DdJMVXT9JFNh-Hp_4UwwwtrbvUjQh07OwcPhOUp6JyZ_Ltxkw/exec";
 
 // Variabel Penampung Data Utama
 let MASTER_SISWA = [];
