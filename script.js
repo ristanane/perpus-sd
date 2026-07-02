@@ -52,11 +52,6 @@ async function muatDataAwal() {
         masterSiswa = data.siswa || [];
         masterBuku = data.buku || [];
         
-        // --- KODE CEK OTOMATIS (Bisa kamu hapus nanti kalau sudah normal) ---
-        alert("Jumlah data siswa yang berhasil ditarik: " + masterSiswa.length);
-        console.log("Isi data siswa dari Sheets:", masterSiswa);
-        // ------------------------------------------------------------------
-        
         renderTabelPeminjaman(data.log || []);
         hitungAnalitikDashboard(data.log || []);
     } catch (error) {
@@ -138,23 +133,23 @@ function hitungAnalitikDashboard(logs) {
 }
 
 // ==========================================
-// 3. AUTOCOMPLETE ENGINE (VERSI AMAN DARI FORMAT ANEH)
+// 3. AUTOCOMPLETE ENGINE (VERSI SUPER AGRESIF & SENSITIF)
 // ==========================================
 function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
-    inputEl.addEventListener('input', function() {
-        const val = this.value.toLowerCase().trim();
+    // Fungsi utama untuk menyaring dan menampilkan data
+    function jalankanPencarian() {
+        const val = inputEl.value.toLowerCase().trim();
         suggestionEl.innerHTML = '';
         
-        if (!val || !dataArray || dataArray.length === 0) { 
+        if (!val || dataArray.length === 0) { 
             suggestionEl.style.display = 'none'; 
             return; 
         }
         
-        // Memfilter data dengan proteksi ekstra jika ada baris kosong atau eror di Sheets
+        // Filter data berdasarkan Kolom B (indeks ke-1)
         const filtered = dataArray.filter(item => {
-            if (!item || !item[1]) return false; // Lewati jika baris atau namanya kosong
-            const namaSiswa = String(item[1]).toLowerCase().trim();
-            return namaSiswa.includes(val);
+            if (!item || !item[1]) return false;
+            return String(item[1]).toLowerCase().includes(val);
         });
         
         if (filtered.length === 0) { 
@@ -170,18 +165,26 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
             div.style.borderBottom = '1px solid var(--border-color)';
             div.innerHTML = `<strong>${item[1]}</strong> <small style="color:var(--text-muted);">(${item[0]} - Kl. ${item[2]})</small>`;
             
-            div.addEventListener('click', () => {
+            // Menggunakan event mousedown agar klik terpicu lebih cepat sebelum input kehilangan fokus
+            div.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Mencegah input keburu blur
                 onSelectCallback(item);
                 suggestionEl.style.display = 'none';
             });
             suggestionEl.appendChild(div);
         });
         suggestionEl.style.display = 'block';
-    });
-    
-    // Tutup dropdown jika klik di luar input
-    document.addEventListener('click', function(e) { 
-        if (e.target !== inputEl) suggestionEl.style.display = 'none'; 
+    }
+
+    // Dengarkan banyak event sekaligus agar tidak ada ketikan yang lolos!
+    inputEl.addEventListener('input', jalankanPencarian);
+    inputEl.addEventListener('keyup', jalankanPencarian);
+    inputEl.addEventListener('focus', jalankanPencarian);
+
+    // Tutup dropdown jika klik di luar area input
+    inputEl.addEventListener('blur', () => {
+        // Beri jeda sedikit agar proses klik/mousedown di dropdown selesai diproses
+        setTimeout(() => { suggestionEl.style.display = 'none'; }, 200);
     });
 }
 setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (siswa) => {
