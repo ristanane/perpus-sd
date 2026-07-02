@@ -131,9 +131,8 @@ document.addEventListener('click', (e) => {
 formPeminjaman.addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    // Validasi super ketat: pastikan ID Siswa tidak kosong agar Google Sheets tidak eror
     if (!idSiswaField.value || idSiswaField.value === "-" || idSiswaField.value.trim() === "") {
-        alert("⚠️ Harap ketik nama siswa dan PILIH dari rekomendasi nama yang muncul di bawahnya!");
+        alert("⚠️ Harap pilih nama siswa dari rekomendasi yang muncul!");
         return;
     }
     
@@ -142,18 +141,16 @@ formPeminjaman.addEventListener('submit', async function(e) {
         id_siswa: idSiswaField.value,
         nama_siswa: inputSiswa.value,
         kelas: kelasSiswaField.value,
-        id_buku: idBukuField.value || "", // Kosongkan jika buku baru
+        id_buku: idBukuField.value || "",
         judul_buku: inputBuku.value,
         nama_pengarang: pengarangField.value,
         stok_total: stokTotalField.value || "1"
     };
     
     try {
-        // Kunci tombol agar tidak diklik dua kali
         btnSimpan.disabled = true;
         btnSimpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses Peminjaman...`;
         
-        // Kirim data ke Google Sheets menggunakan TEXT biasa untuk menghindari CORS crash
         const respon = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -162,29 +159,29 @@ formPeminjaman.addEventListener('submit', async function(e) {
         const hasil = await respon.json();
         
         if (hasil.success) {
-            // BERHASIL: Bersihkan form ke kondisi semula
             formPeminjaman.reset();
             idBukuField.value = '';
-            idSiswaField.value = '';
             idSiswaField.value = '-';
             kelasSiswaField.value = '-';
             pengarangField.readOnly = false;
             groupStok.style.display = 'none';
-            
-            // Segarkan data tabel kanan langsung dari Google Sheets resmi
+            // Hanya memperbarui tabel dari data resmi Google Sheets
             await muatDataAwal();
         } else {
-            alert("Gagal menyimpan: " + (hasil.error || "Terjadi kesalahan di Google Sheets"));
-            btnSimpan.disabled = false;
-            btnSimpan.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman`;
+            alert("Gagal menyimpan ke Sheets: " + (hasil.error || "Eror tidak diketahui"));
+            resetTombolSimpan();
         }
     } catch (error) {
-        alert("Koneksi internet bermasalah atau URL Web App salah. Coba lagi!");
+        alert("Terjadi masalah komunikasi data. Coba cek setelan 'Anyone' pada deployment Web App.");
         console.error(error);
-        btnSimpan.disabled = false;
-        btnSimpan.innerHTML = `<i class="fa-solid = .paper-plane"></i> Konfirmasi Peminjaman`;
+        resetTombolSimpan();
     }
 });
+
+function resetTombolSimpan() {
+    btnSimpan.disabled = false;
+    btnSimpan.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman`;
+}
 
 // 5. RENDER TABEL MONITORING
 function renderTabelLog(dataLog) {
