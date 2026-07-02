@@ -2,28 +2,49 @@ const API_URL = "https://script.google.com/macros/s/AKfycbx2AUz9RHxpCHMuIKWL9IfN
 let masterSiswa = [];
 
 async function muatDataAwal() {
-    console.log("Memulai tarik data...");
     try {
         const respon = await fetch(`${API_URL}?action=getDataAwal`);
         const data = await respon.json();
         masterSiswa = data.siswa || [];
-        console.log("Data Siswa berhasil dimuat:", masterSiswa);
-    } catch (err) {
-        console.error("Gagal tarik data:", err);
-    }
+        console.log("Data berhasil dimuat:", masterSiswa);
+    } catch (err) { console.error(err); }
 }
 
-// Event listener sederhana untuk tes
-const inputSiswa = document.getElementById('inputSiswa');
-if (inputSiswa) {
-    inputSiswa.addEventListener('input', function() {
-        console.log("Sedang mengetik:", this.value);
-        if (masterSiswa.length > 0) {
-            console.log("Ada data siswa, mencari kecocokan...");
-        } else {
-            console.warn("Data siswa kosong!");
-        }
+function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
+    inputEl.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
+        suggestionEl.innerHTML = '';
+        if (!val || dataArray.length === 0) { suggestionEl.style.display = 'none'; return; }
+        
+        const filtered = dataArray.filter(item => item[1] && String(item[1]).toLowerCase().includes(val));
+        
+        if (filtered.length === 0) { suggestionEl.style.display = 'none'; return; }
+        
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.style.padding = '10px';
+            div.style.background = '#fff';
+            div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid #eee';
+            div.innerText = item[1]; 
+            div.onmousedown = function() {
+                onSelectCallback(item);
+                suggestionEl.style.display = 'none';
+            };
+            suggestionEl.appendChild(div);
+        });
+        suggestionEl.style.display = 'block';
     });
 }
 
-muatDataAwal();
+// Inisialisasi
+muatDataAwal().then(() => {
+    setupAutocomplete(document.getElementById('inputSiswa'), document.getElementById('siswaSuggestions'), masterSiswa, (s) => {
+        document.getElementById('inputSiswa').value = s[1];
+        document.getElementById('idSiswa').value = s[0];
+        document.getElementById('boxIdSiswa').innerText = s[0];
+        document.getElementById('kelasSiswa').value = s[2];
+        document.getElementById('boxKelasSiswa').innerText = s[2];
+    });
+});
