@@ -51,15 +51,18 @@ async function muatDataAwal() {
         
         masterSiswa = data.siswa || [];
         masterBuku = data.buku || [];
-        const logs = data.log || [];
         
-        renderTabelPeminjaman(logs);
-        hitungAnalitikDashboard(logs);
+        // --- KODE CEK OTOMATIS (Bisa kamu hapus nanti kalau sudah normal) ---
+        alert("Jumlah data siswa yang berhasil ditarik: " + masterSiswa.length);
+        console.log("Isi data siswa dari Sheets:", masterSiswa);
+        // ------------------------------------------------------------------
+        
+        renderTabelPeminjaman(data.log || []);
+        hitungAnalitikDashboard(data.log || []);
     } catch (error) {
         console.error("Gagal sinkronisasi data:", error);
     }
 }
-
 function hitungAnalitikDashboard(logs) {
     const hariIni = new Date();
     let htmlTerlambat = '';
