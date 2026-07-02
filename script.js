@@ -135,20 +135,35 @@ function hitungAnalitikDashboard(logs) {
 }
 
 // ==========================================
-// 3. AUTOCOMPLETE ENGINE
+// 3. AUTOCOMPLETE ENGINE (VERSI SENSITIF & AKURAT)
 // ==========================================
 function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     inputEl.addEventListener('input', function() {
-        const val = this.value.toLowerCase();
+        const val = this.value.toLowerCase().trim();
         suggestionEl.innerHTML = '';
-        if (!val) { suggestionEl.style.display = 'none'; return; }
-        const filtered = dataArray.filter(item => item[1].toLowerCase().includes(val));
-        if (filtered.length === 0) { suggestionEl.style.display = 'none'; return; }
+        
+        if (!val || dataArray.length === 0) { 
+            suggestionEl.style.display = 'none'; 
+            return; 
+        }
+        
+        // Memfilter data berdasarkan Nama Siswa (kolom B / indeks ke-1)
+        const filtered = dataArray.filter(item => {
+            return item && item[1] && item[1].toString().toLowerCase().includes(val);
+        });
+        
+        if (filtered.length === 0) { 
+            suggestionEl.style.display = 'none'; 
+            return; 
+        }
         
         filtered.forEach(item => {
             const div = document.createElement('div');
             div.className = 'suggestion-item';
-            div.innerHTML = `<strong>${item[1]}</strong> <small style="color:var(--text-muted);">(${item[2]})</small>`;
+            div.style.padding = '12px 16px';
+            div.style.cursor = 'pointer';
+            div.innerHTML = `<strong>${item[1]}</strong> <small style="color:var(--text-muted);">(${item[0]} - Kl. ${item[2]})</small>`;
+            
             div.addEventListener('click', () => {
                 onSelectCallback(item);
                 suggestionEl.style.display = 'none';
@@ -157,9 +172,12 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         });
         suggestionEl.style.display = 'block';
     });
-    document.addEventListener('click', function(e) { if (e.target !== inputEl) suggestionEl.style.display = 'none'; });
+    
+    // Menutup kotak rekomendasi jika klik di luar area input
+    document.addEventListener('click', function(e) { 
+        if (e.target !== inputEl) suggestionEl.style.display = 'none'; 
+    });
 }
-
 setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (siswa) => {
     inputSiswa.value = siswa[1]; idSiswaField.value = siswa[0]; boxIdSiswa.innerText = siswa[0];
     kelasSiswaField.value = siswa[2]; boxKelasSiswa.innerText = siswa[2];
