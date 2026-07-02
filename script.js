@@ -141,15 +141,18 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         const val = inputEl.value.toLowerCase().trim();
         suggestionEl.innerHTML = '';
         
-        if (!val || dataArray.length === 0) { 
+        if (!val || !masterSiswa || masterSiswa.length === 0) { 
             suggestionEl.style.display = 'none'; 
             return; 
         }
         
-        // Filter data berdasarkan Kolom B (indeks ke-1)
+        // Versi Filter Kebal: Mengubah semua ke string dan menghilangkan spasi
         const filtered = dataArray.filter(item => {
             if (!item || !item[1]) return false;
-            return String(item[1]).toLowerCase().includes(val);
+            // Kita ubah nama siswa jadi string bersih untuk perbandingan
+            const namaSiswa = String(item[1]).toLowerCase().replace(/\s/g, "");
+            const ketikan = val.replace(/\s/g, "");
+            return namaSiswa.includes(ketikan);
         });
         
         if (filtered.length === 0) { 
@@ -162,12 +165,12 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
             div.className = 'suggestion-item';
             div.style.padding = '12px 16px';
             div.style.cursor = 'pointer';
-            div.style.borderBottom = '1px solid var(--border-color)';
-            div.innerHTML = `<strong>${item[1]}</strong> <small style="color:var(--text-muted);">(${item[0]} - Kl. ${item[2]})</small>`;
+            div.style.background = 'white';
+            div.style.borderBottom = '1px solid #eee';
+            div.innerHTML = `<strong>${item[1]}</strong> <small style="color:#888;">(Kl. ${item[2]})</small>`;
             
-            // Menggunakan event mousedown agar klik terpicu lebih cepat sebelum input kehilangan fokus
             div.addEventListener('mousedown', (e) => {
-                e.preventDefault(); // Mencegah input keburu blur
+                e.preventDefault();
                 onSelectCallback(item);
                 suggestionEl.style.display = 'none';
             });
@@ -175,7 +178,6 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         });
         suggestionEl.style.display = 'block';
     }
-
     // Dengarkan banyak event sekaligus agar tidak ada ketikan yang lolos!
     inputEl.addEventListener('input', jalankanPencarian);
     inputEl.addEventListener('keyup', jalankanPencarian);
