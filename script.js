@@ -222,9 +222,34 @@ function renderTabelLog(dataLog) {
         const opsiTgl = { year: 'numeric', month: 'short', day: 'numeric' };
         const tglFormat = tglKembaliRaw.toLocaleDateString('id-ID', opsiTgl);
         
-        const isTerlambat = row[10] === "TERLAMBAT";
+        function renderTabelLog(dataLog) {
+    tabelBody.innerHTML = '';
+    
+    // Filter data yang statusnya hanya "Dipinjam" (Kolom J -> indeks 9)
+    const dataAktif = dataLog.filter(row => row[9] === "Dipinjam");
+    
+    if (dataAktif.length === 0) {
+        tabelBody.innerHTML = `<tr><td colspan="5" class="table-empty-state">🎉 Tidak ada buku yang sedang dipinjam. Semuanya aman!</td></tr>`;
+        return;
+    }
+    
+    dataAktif.forEach(row => {
+        const idTransaksi = row[0];
+        const namaSiswa = row[2];
+        const kelas = row[3];
+        const idBuku = row[4];
+        const judulBuku = row[5];
+        const pengarang = row[6];
+        
+        // Format Tanggal Batas Kembali (Kolom I -> indeks 8)
+        const tglKembaliRaw = new Date(row[8]);
+        const opsiTgl = { year: 'numeric', month: 'short', day: 'numeric' };
+        const tglFormat = tglKembaliRaw.toLocaleDateString('id-ID', opsiTgl);
+        
+        // Membaca Kolom K (Keterangan -> indeks 10) untuk mendeteksi kata "TERLAMBAT"
+        const isTerlambat = row[10] && row[10].toString().toUpperCase() === "TERLAMBAT";
         const kelasBaris = isTerlambat ? 'row-warning' : 'row-normal';
-        const labelTerlambat = isTerlambat ? ' <span style="font-weight:700;">[TERLAMBAT]</span>' : '';
+        const labelTerlambat = isTerlambat ? ' <span style="font-weight:700; color:#C62828;">[TERLAMBAT]</span>' : '';
         
         const tr = document.createElement('tr');
         tr.className = kelasBaris;
@@ -242,7 +267,6 @@ function renderTabelLog(dataLog) {
         tabelBody.appendChild(tr);
     });
 }
-
 // ==========================================================================
 // 6. PROSES PENGEMBALIAN BUKU
 // ==========================================================================
