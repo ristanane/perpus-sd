@@ -16,7 +16,12 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         suggestionEl.innerHTML = '';
         if (!val || dataArray.length === 0) { suggestionEl.style.display = 'none'; return; }
         
-        const filtered = dataArray.filter(item => item[1] && String(item[1]).toLowerCase().includes(val));
+        // Ganti baris 'const filtered = ...' dengan yang ini:
+const filtered = dataArray.filter(item => {
+    // Kita paksakan keduanya (data sheets dan input) menjadi huruf kecil sebelum dibandingkan
+    const namaSiswa = item[1] ? String(item[1]).toLowerCase() : "";
+    return namaSiswa.includes(val.toLowerCase()); // Pastikan val juga di-toLowerCase
+});
         
         if (filtered.length === 0) { suggestionEl.style.display = 'none'; return; }
         
