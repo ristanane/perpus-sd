@@ -135,21 +135,23 @@ function hitungAnalitikDashboard(logs) {
 }
 
 // ==========================================
-// 3. AUTOCOMPLETE ENGINE (VERSI SENSITIF & AKURAT)
+// 3. AUTOCOMPLETE ENGINE (VERSI AMAN DARI FORMAT ANEH)
 // ==========================================
 function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     inputEl.addEventListener('input', function() {
         const val = this.value.toLowerCase().trim();
         suggestionEl.innerHTML = '';
         
-        if (!val || dataArray.length === 0) { 
+        if (!val || !dataArray || dataArray.length === 0) { 
             suggestionEl.style.display = 'none'; 
             return; 
         }
         
-        // Memfilter data berdasarkan Nama Siswa (kolom B / indeks ke-1)
+        // Memfilter data dengan proteksi ekstra jika ada baris kosong atau eror di Sheets
         const filtered = dataArray.filter(item => {
-            return item && item[1] && item[1].toString().toLowerCase().includes(val);
+            if (!item || !item[1]) return false; // Lewati jika baris atau namanya kosong
+            const namaSiswa = String(item[1]).toLowerCase().trim();
+            return namaSiswa.includes(val);
         });
         
         if (filtered.length === 0) { 
@@ -162,6 +164,7 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
             div.className = 'suggestion-item';
             div.style.padding = '12px 16px';
             div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid var(--border-color)';
             div.innerHTML = `<strong>${item[1]}</strong> <small style="color:var(--text-muted);">(${item[0]} - Kl. ${item[2]})</small>`;
             
             div.addEventListener('click', () => {
@@ -173,7 +176,7 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
         suggestionEl.style.display = 'block';
     });
     
-    // Menutup kotak rekomendasi jika klik di luar area input
+    // Tutup dropdown jika klik di luar input
     document.addEventListener('click', function(e) { 
         if (e.target !== inputEl) suggestionEl.style.display = 'none'; 
     });
