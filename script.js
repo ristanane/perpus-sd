@@ -33,7 +33,7 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     });
 }
 
-// 3. FUNGSI SIMPAN PEMINJAMAN (Ini yang tadi hilang!)
+// 3. FUNGSI SIMPAN PEMINJAMAN (Ini yg tadi hilang!)
 document.getElementById('formPeminjaman').addEventListener('submit', async function(e) {
     e.preventDefault();
     const payload = {
