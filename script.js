@@ -130,8 +130,10 @@ document.addEventListener('click', (e) => {
 // 4. PROSES KIRIM FORM PEMINJAMAN (SIMPAN)
 formPeminjaman.addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!idSiswaField.value) {
-        alert("Harap pilih nama siswa dari rekomendasi yang muncul!");
+    
+    // Validasi super ketat: pastikan ID Siswa tidak kosong agar Google Sheets tidak eror
+    if (!idSiswaField.value || idSiswaField.value === "-" || idSiswaField.value.trim() === "") {
+        alert("⚠️ Harap ketik nama siswa dan PILIH dari rekomendasi nama yang muncul di bawahnya!");
         return;
     }
     
@@ -140,35 +142,47 @@ formPeminjaman.addEventListener('submit', async function(e) {
         id_siswa: idSiswaField.value,
         nama_siswa: inputSiswa.value,
         kelas: kelasSiswaField.value,
-        id_buku: idBukuField.value,
+        id_buku: idBukuField.value || "", // Kosongkan jika buku baru
         judul_buku: inputBuku.value,
         nama_pengarang: pengarangField.value,
-        stok_total: stokTotalField.value
+        stok_total: stokTotalField.value || "1"
     };
     
     try {
+        // Kunci tombol agar tidak diklik dua kali
         btnSimpan.disabled = true;
         btnSimpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses Peminjaman...`;
         
+        // Kirim data ke Google Sheets menggunakan TEXT biasa untuk menghindari CORS crash
         const respon = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
         
         const hasil = await respon.json();
+        
         if (hasil.success) {
+            // BERHASIL: Bersihkan form ke kondisi semula
             formPeminjaman.reset();
             idBukuField.value = '';
             idSiswaField.value = '';
+            idSiswaField.value = '-';
+            kelasSiswaField.value = '-';
             pengarangField.readOnly = false;
             groupStok.style.display = 'none';
+            
+            // Segarkan data tabel kanan langsung dari Google Sheets resmi
             await muatDataAwal();
+        } else {
+            alert("Gagal menyimpan: " + (hasil.error || "Terjadi kesalahan di Google Sheets"));
+            btnSimpan.disabled = false;
+            btnSimpan.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman`;
         }
     } catch (error) {
-        alert("Gagal memproses transaksi. Coba lagi!");
+        alert("Koneksi internet bermasalah atau URL Web App salah. Coba lagi!");
         console.error(error);
         btnSimpan.disabled = false;
-        btnSimpan.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman`;
+        btnSimpan.innerHTML = `<i class="fa-solid = .paper-plane"></i> Konfirmasi Peminjaman`;
     }
 });
 
