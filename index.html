@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruang Baca - Perpustakaan SDN Senden 2</title>
-    <!-- FontAwesome & Google Fonts untuk tampilan estetik -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -17,306 +16,83 @@
             --text-muted: #7a8a81;
             --accent-orange: #eeb87c;
             --accent-blue: #7cb2ee;
+            --accent-red: #ee7c7c;
             --border-color: #e2e8e4;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--bg-pastel); color: var(--text-main); padding: 24px; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-area i { font-size: 32px; color: var(--primary-green); }
+        .logo-area h1 { font-size: 24px; font-weight: 700; }
+        .logo-area p { font-size: 14px; color: var(--text-muted); }
 
-        body {
-            background-color: var(--bg-pastel);
-            color: var(--text-main);
-            padding: 24px;
-        }
+        .nav-tabs { display: flex; gap: 8px; background: rgba(255,255,255,0.5); padding: 6px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .tab-btn.active { background-color: white; color: var(--primary-green); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
+        /* Dashboard Grid Terlambat & Populer */
+        .dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .dash-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.01); }
+        .dash-card h4 { font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(238, 124, 124, 0.08); border-radius: 10px; margin-bottom: 8px; font-size: 13px; }
+        .populer-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .populer-tag { background: rgba(118, 184, 147, 0.12); color: #4e8a67; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
 
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .container-app { display: none; grid-template-columns: 1fr 1.6fr; gap: 24px; }
+        .container-app.active { display: grid; }
+        .container-full { display: none; background: var(--bg-card); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); max-width: 600px; margin: 40px auto; }
+        .container-full.active { display: block; }
 
-        .logo-area i {
-            font-size: 32px;
-            color: var(--primary-green);
-        }
+        /* Tab Leaderboard */
+        .container-leaderboard { display: none; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .container-leaderboard.active { display: grid; }
 
-        .logo-area h1 {
-            font-size: 24px;
-            font-weight: 700;
-        }
+        .card { background: var(--bg-card); border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.02); height: fit-content; }
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); }
+        
+        .form-control { width: 100%; padding: 14px 16px 14px 44px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 15px; background-color: #fafbfc; color: var(--text-main); transition: 0.2s; }
+        .form-control:focus { outline: none; border-color: var(--primary-green); background-color: white; box-shadow: 0 0 0 4px rgba(118, 184, 147, 0.1); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .read-only-box { background-color: #f0f4f1; padding: 14px 16px; border-radius: 12px; font-size: 15px; font-weight: 500; border: 1px solid var(--border-color); }
+        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary { background-color: var(--primary-green); color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn-primary:disabled { background-color: var(--text-muted); opacity: 0.6; }
 
-        .logo-area p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-radius: 12px; max-height: 180px; overflow-y: auto; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-top: 4px; }
+        .suggestion-item { padding: 12px 16px; cursor: pointer; font-size: 14px; }
+        .suggestion-item:hover { background-color: var(--bg-pastel); color: var(--primary-green); }
 
-        /* sistem navigasi tab */
-        .nav-tabs {
-            display: flex;
-            gap: 10px;
-            background: rgba(255,255,255,0.5);
-            padding: 6px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 14px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid var(--border-color); }
+        td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        
+        .btn-action { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; margin-right: 4px; }
+        .btn-return { background-color: rgba(124, 178, 238, 0.15); color: #407fc9; }
+        .btn-renew { background-color: rgba(238, 184, 124, 0.15); color: #c5863d; }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
+        /* Rank Badge */
+        .rank-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 12px; }
+        .rank-1 { background: #fef3c7; color: #d97706; }
+        .rank-2 { background: #e2e8f0; color: #475569; }
+        .rank-3 { background: #ffedd5; color: #c2410c; }
 
-        .tab-btn.active {
-            background-color: white;
-            color: var(--primary-green);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-
-        .container-app {
-            display: none;
-            grid-template-columns: 1fr 1.6fr;
-            gap: 24px;
-        }
-
-        .container-app.active {
-            display: grid;
-        }
-
-        /* layout full untuk tab buku tamu yang ga butuh dua kolom */
-        .container-full {
-            display: none;
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.02);
-            max-width: 600px;
-            margin: 40px auto;
-        }
-
-        .container-full.active {
-            display: block;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.02);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 16px;
-            color: var(--text-muted);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 16px 14px 44px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 15px;
-            background-color: #fafbfc;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-green);
-            background-color: white;
-            box-shadow: 0 0 0 4px rgba(118, 184, 147, 0.1);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .read-only-box {
-            background-color: #f0f4f1 !important;
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 500;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-green);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-primary:disabled {
-            background-color: var(--text-muted);
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Autocomplete dropdown */
-        .suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            margin-top: 4px;
-        }
-
-        .suggestion-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-
-        .suggestion-item:hover {
-            background-color: var(--bg-pastel);
-            color: var(--primary-green);
-        }
-
-        /* Tabel section */
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            padding: 14px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        td {
-            padding: 16px;
-            font-size: 14px;
-            border-bottom: 1px solid var(--border-color);
-            vertical-align: middle;
-        }
-
-        .btn-action {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            margin-right: 4px;
-        }
-
-        .btn-return {
-            background-color: rgba(124, 178, 238, 0.15);
-            color: #407fc9;
-        }
-
-        .btn-renew {
-            background-color: rgba(238, 184, 124, 0.15);
-            color: #c5863d;
-        }
-
-        /* Modal pop-up pop-up untuk kondisi buku */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 24px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; }
         .modal-title { font-weight: 700; margin-bottom: 12px; font-size: 18px; }
         .modal-desc { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
         .modal-options { display: flex; flex-direction: column; gap: 10px; }
-        .btn-opt { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: #fafbfc; cursor: pointer; font-weight: 500; text-align: left; transition: 0.2s; }
+        .btn-opt { padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; background: #fafbfc; cursor: pointer; font-weight: 500; text-align: left; }
         .btn-opt:hover { border-color: var(--primary-green); background-color: var(--bg-pastel); }
     </style>
 </head>
@@ -333,16 +109,31 @@
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('peminjaman')"><i class="fa-solid fa-exchange"></i> Sirkulasi</button>
             <button class="tab-btn" onclick="switchTab('kunjungan')"><i class="fa-solid fa-user-pen"></i> Buku Tamu</button>
+            <button class="tab-btn" onclick="switchTab('leaderboard')"><i class="fa-solid fa-crown"></i> Papan Peringkat</button>
         </div>
     </header>
 
-    <!-- TAB 1: SIRKULASI (PINJAM/KEMBALI) -->
+    <!-- WIDGET DASHBOARD KILAT (FITUR 1 & FITUR 2) -->
+    <div class="dashboard-row" id="dashRow">
+        <div class="dash-card">
+            <h4><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-red);"></i> Pengingat Terlambat (> 7 Hari)</h4>
+            <div id="boxTerlambat">
+                <p style="color:var(--text-muted); font-size:13px;">Memuat data tagihan...</p>
+            </div>
+        </div>
+        <div class="dash-card">
+            <h4><i class="fa-solid fa-fire" style="color:var(--accent-orange);"></i> Rekomendasi Buku Terpopuler</h4>
+            <div class="populer-list" id="boxPopuler">
+                <p style="color:var(--text-muted); font-size:13px;">Menganalisis tren bacaan...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 1: SIRKULASI -->
     <div id="tab-peminjaman" class="container-app active">
-        <!-- FORM KIRI -->
         <div class="card">
             <form id="formPeminjaman">
                 <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-pen-to-square"></i> Catat Peminjaman</h3>
-                
                 <div class="form-group">
                     <label>Nama Siswa</label>
                     <div class="input-wrapper">
@@ -351,22 +142,17 @@
                     </div>
                     <div id="siswaSuggestions" class="suggestions" style="display:none;"></div>
                 </div>
-
                 <div class="grid-2">
                     <div class="form-group">
                         <label>ID Siswa</label>
-                        <input type="hidden" id="idSiswa">
-                        <div id="boxIdSiswa" class="read-only-box">-</div>
+                        <input type="hidden" id="idSiswa"><div id="boxIdSiswa" class="read-only-box">-</div>
                     </div>
                     <div class="form-group">
                         <label>Kelas</label>
-                        <input type="hidden" id="kelasSiswa">
-                        <div id="boxKelasSiswa" class="read-only-box">-</div>
+                        <input type="hidden" id="kelasSiswa"><div id="boxKelasSiswa" class="read-only-box">-</div>
                     </div>
                 </div>
-                
                 <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 10px 0 20px 0;">
-
                 <div class="form-group">
                     <label>Judul Buku</label>
                     <div class="input-wrapper">
@@ -375,91 +161,75 @@
                     </div>
                     <div id="bukuSuggestions" class="suggestions" style="display:none;"></div>
                 </div>
-
                 <div class="form-group">
-                    <label>Nama Pengarang / Penulis</label>
+                    <label>Nama Pengarang</label>
                     <input type="text" id="pengarangBuku" class="form-control" style="padding-left: 16px;" placeholder="Nama penulis buku">
                     <input type="hidden" id="idBuku">
                 </div>
-
                 <div class="form-group" id="groupStok" style="display: none;">
                     <label>Stok Awal Buku Baru</label>
                     <input type="number" id="stokTotal" class="form-control" style="padding-left: 16px;" value="1" min="1">
                 </div>
-
-                <button type="submit" id="btnSimpan" class="btn btn-primary">
-                    <i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman
-                </button>
+                <button type="submit" id="btnSimpan" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman</button>
             </form>
         </div>
-
-        <!-- TABEL KANAN -->
         <div class="card">
-            <div class="table-header">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Buku yang Sedang Dipinjam</h3>
-            </div>
+            <div class="table-header"><h3><i class="fa-solid fa-clock-rotate-left"></i> Sedang Dipinjam</h3></div>
             <div class="table-container">
                 <table>
                     <thead>
-                        <tr>
-                            <th>Siswa</th>
-                            <th>Kelas</th>
-                            <th>Buku / Pengarang</th>
-                            <th>Tgl Pinjam</th>
-                            <th style="text-align: center;">Aksi</th>
-                        </tr>
+                        <tr><th>Siswa</th><th>Kelas</th><th>Buku</th><th>Tgl Pinjam</th><th style="text-align: center;">Aksi</th></tr>
                     </thead>
-                    <tbody id="tabelPeminjaman">
-                        <!-- Baris diisi oleh JS -->
-                    </tbody>
+                    <tbody id="tabelPeminjaman"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: BUKU TAMU / KUNJUNGAN DIGITAL -->
+    <!-- TAB 2: BUKU TAMU -->
     <div id="tab-kunjungan" class="container-full">
-        <h3 style="text-align: center; margin-bottom: 10px;"><i class="fa-solid fa-user-check"></i> Buku Tamu Ruang Baca</h3>
-        <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Halo! Silakan ketik namamu sebelum membaca di perpustakaan ya.</p>
-        
+        <h3 style="text-align: center; margin-bottom: 10px;"><i class="fa-solid fa-user-check"></i> Buku Tamu Digital</h3>
+        <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px;">Silakan isi kehadiran sebelum membaca ya!</p>
         <form id="formKunjungan">
             <div class="form-group">
-                <label>Ketik Namamu Di Sini</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <input type="text" id="inputTamu" class="form-control" placeholder="Ketik nama lengkap..." autocomplete="off">
-                </div>
+                <label>Ketik Namamu</label>
+                <div class="input-wrapper"><i class="fa-solid fa-graduation-cap"></i><input type="text" id="inputTamu" class="form-control" placeholder="Ketik nama lengkap..." autocomplete="off"></div>
                 <div id="tamuSuggestions" class="suggestions" style="display:none;"></div>
             </div>
-
             <div class="grid-2" style="margin-bottom: 24px;">
-                <div class="form-group">
-                    <label>ID Siswa</label>
-                    <input type="hidden" id="idTamu">
-                    <div id="boxIdTamu" class="read-only-box">-</div>
-                </div>
-                <div class="form-group">
-                    <label>Kelas</label>
-                    <input type="hidden" id="kelasTamu">
-                    <div id="boxKelasTamu" class="read-only-box">-</div>
-                </div>
+                <div class="form-group"><label>ID Siswa</label><input type="hidden" id="idTamu"><div id="boxIdTamu" class="read-only-box">-</div></div>
+                <div class="form-group"><label>Kelas</label><input type="hidden" id="kelasTamu"><div id="boxKelasTamu" class="read-only-box">-</div></div>
             </div>
-
-            <button type="submit" id="btnTamu" class="btn btn-primary" style="background-color: #6da38c;">
-                <i class="fa-solid fa-circle-check"></i> Saya Hadir Di Perpustakaan
-            </button>
+            <button type="submit" id="btnTamu" class="btn btn-primary" style="background-color: #6da38c;"><i class="fa-solid fa-circle-check"></i> Saya Hadir</button>
         </form>
     </div>
 
-    <!-- MODAL POP-UP PILIHAN KONDISI BUKU (FITUR 6) -->
+    <!-- TAB 3: PAPAN PERINGKAT / RAJA & RATU BUKU (FITUR 5) -->
+    <div id="tab-leaderboard" class="container-leaderboard">
+        <div class="card">
+            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-crown" style="color:#d97706;"></i> Top 5 Siswa (Kandidat Raja/Ratu)</h3>
+            <table>
+                <thead><tr><th>Peringkat</th><th>Nama Siswa</th><th>Kelas</th><th style="text-align:right;">Total Pinjam</th></tr></thead>
+                <tbody id="leaderSiswa"></tbody>
+            </table>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-school" style="color:#475569;"></i> Keaktifan Kelas</h3>
+            <table>
+                <thead><tr><th>Peringkat</th><th>Kelas</th><th style="text-align:right;">Total Peminjaman</th></tr></thead>
+                <tbody id="leaderKelas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL KONDISI BUKU -->
     <div id="modalKondisi" class="modal">
         <div class="modal-content">
             <div class="modal-title">Bagaimana Kondisi Buku?</div>
-            <div class="modal-desc">Pilih kondisi fisik buku sebelum dikembalikan ke rak.</div>
             <div class="modal-options">
                 <button class="btn-opt" onclick="eksekusiKembali('Bagus')"><i class="fa-solid fa-circle-check" style="color:#76b893;"></i> Bagus / Mulus</button>
                 <button class="btn-opt" onclick="eksekusiKembali('Rusak Ringan')"><i class="fa-solid fa-triangle-exclamation" style="color:#eeb87c;"></i> Rusak Ringan (Robek/Coret)</button>
-                <button class="btn-opt" onclick="eksekusiKembali('Halaman Hilang')"><i class="fa-solid fa-circle-xmark" style="color:#ee7c7c;"></i> Rusak Parah / Halaman Hilang</button>
+                <button class="btn-opt" onclick="eksekusiKembali('Halaman Hilang')"><i class="fa-solid fa-circle-xmark" style="color:#ee7c7c;"></i> Rusak Parah / Hilang</button>
             </div>
             <button class="btn" style="margin-top: 16px; background:none; border: 1px solid var(--border-color); color: var(--text-muted);" onclick="tutupModal()">Batal</button>
         </div>
@@ -469,14 +239,23 @@
     <script>
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.container-app, .container-full').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-peminjaman').classList.remove('active');
+            document.getElementById('tab-kunjungan').classList.remove('active');
+            document.getElementById('tab-leaderboard').classList.remove('active');
             
+            const rowDash = document.getElementById('dashRow');
             if(tab === 'peminjaman') {
                 document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
                 document.getElementById('tab-peminjaman').classList.add('active');
-            } else {
+                rowDash.style.display = 'grid';
+            } else if(tab === 'kunjungan') {
                 document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
                 document.getElementById('tab-kunjungan').classList.add('active');
+                rowDash.style.display = 'none';
+            } else {
+                document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+                document.getElementById('tab-leaderboard').classList.add('active');
+                rowDash.style.display = 'none';
             }
         }
     </script>
