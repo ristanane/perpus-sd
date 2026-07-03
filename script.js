@@ -219,6 +219,7 @@ async function eksekusiKembali(kondisiBuku) {
 }
 
 async function bukaPerpanjang(idTransaksi) {
+    alert("Tombol diklik! ID: " + idTransaksi); // <--- TAMBAHKAN INI
     if(!confirm("Perpanjang peminjaman buku 1 minggu lagi?")) return;
     try {
         const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "perpanjangBuku", id_transaksi: idTransaksi }) });
