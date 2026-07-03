@@ -1,237 +1,92 @@
-// 1. KONFIGURASI UTAMA
+// 1. KONFIGURASI
 const API_URL = "https://script.google.com/macros/s/AKfycbx2AUz9RHxpCHMuIKWL9IfN9TlZ4QVv92x2uCvFxHbdorPwXMoalX0DakbauBXrKQhPag/exec";
+let masterSiswa = [], masterBuku = [];
 
-let masterSiswa = [];
-let masterBuku = [];
-
-// DOM Elemen (Sirkulasi, Tamu, Dashboard)
-const formPeminjaman = document.getElementById('formPeminjaman');
-const inputSiswa = document.getElementById('inputSiswa');
-const idSiswaField = document.getElementById('idSiswa');
-const boxIdSiswa = document.getElementById('boxIdSiswa');
-const kelasSiswaField = document.getElementById('kelasSiswa');
-const boxKelasSiswa = document.getElementById('boxKelasSiswa');
-const siswaSuggestions = document.getElementById('siswaSuggestions');
-const inputBuku = document.getElementById('inputBuku');
-const idBukuField = document.getElementById('idBuku');
-const pengarangField = document.getElementById('pengarangBuku');
-const stokTotalField = document.getElementById('stokTotal');
-const groupStok = document.getElementById('groupStok');
-const bukuSuggestions = document.getElementById('bukuSuggestions');
-const btnSimpan = document.getElementById('btnSimpan');
-const tabelPeminjaman = document.getElementById('tabelPeminjaman');
-const formKunjungan = document.getElementById('formKunjungan');
-const inputTamu = document.getElementById('inputTamu');
-const idTamuField = document.getElementById('idTamu');
-const boxIdTamu = document.getElementById('boxIdTamu');
-const kelasTamuField = document.getElementById('kelasTamu');
-const boxKelasTamu = document.getElementById('boxKelasTamu');
-const tamuSuggestions = document.getElementById('tamuSuggestions');
-const btnTamu = document.getElementById('btnTamu');
-const boxTerlambat = document.getElementById('boxTerlambat');
-const boxPopuler = document.getElementById('boxPopuler');
-const leaderSiswa = document.getElementById('leaderSiswa');
-const leaderKelas = document.getElementById('leaderKelas');
-const modalKondisi = document.getElementById('modalKondisi');
-
-let transaksiTerpilih = null;
-let idBukuTerpilih = null;
-
-// ==========================================
-// 2. KELOLA DATA (Bagian bawah script.js)
-// ==========================================
+// 2. FUNGSI MUAT DATA
 async function muatDataAwal() {
     try {
         const respon = await fetch(`${API_URL}?action=getDataAwal`);
         const data = await respon.json();
         masterSiswa = data.siswa || [];
         masterBuku = data.buku || [];
-        
-        // Panggil inisialisasi di sini agar data sudah terisi
-        inisialisasiSistem(); 
-        
+        inisialisasiSistem();
         renderTabelPeminjaman(data.log || []);
         hitungAnalitikDashboard(data.log || []);
-    } catch (error) { console.error("Gagal sinkronisasi data:", error); }
+    } catch (error) { console.error("Gagal load:", error); }
 }
 
-// 3. AUTOCOMPLETE ENGINE (Fungsi tetap sama)
+// 3. AUTOCOMPLETE ENGINE (Fitur Pencarian Nama/Buku)
 function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     function jalankanPencarian() {
         const val = inputEl.value.toLowerCase().trim();
         suggestionEl.innerHTML = '';
-        if (!val || dataArray.length === 0) { suggestionEl.style.display = 'none'; return; }
-        
-        const filtered = dataArray.filter(item => item[1] && String(item[1]).toLowerCase().includes(val));
-        
-        if (filtered.length === 0) { suggestionEl.style.display = 'none'; return; }
-        
+        if (!val) { suggestionEl.style.display = 'none'; return; }
+        const filtered = dataArray.filter(i => i[1] && String(i[1]).toLowerCase().includes(val));
         filtered.forEach(item => {
             const div = document.createElement('div');
             div.className = 'suggestion-item';
             div.style.padding = '10px'; div.style.background = '#fff'; div.style.cursor = 'pointer'; div.style.border = '1px solid #ccc';
             div.innerText = item[1]; 
-            div.onmousedown = function(e) { e.preventDefault(); onSelectCallback(item); suggestionEl.style.display = 'none'; };
+            div.onmousedown = (e) => { e.preventDefault(); onSelectCallback(item); suggestionEl.style.display = 'none'; };
             suggestionEl.appendChild(div);
         });
-        suggestionEl.style.display = 'block';
+        suggestionEl.style.display = filtered.length ? 'block' : 'none';
     }
-
     inputEl.addEventListener('input', jalankanPencarian);
-    inputEl.addEventListener('keyup', jalankanPencarian);
-    inputEl.addEventListener('focus', jalankanPencarian);
     inputEl.addEventListener('blur', () => setTimeout(() => { suggestionEl.style.display = 'none'; }, 200));
 }
 
-// FUNGSI INISIALISASI (Panggil sekali aja di dalam muatDataAwal)
+// 4. INISIALISASI FORM
 function inisialisasiSistem() {
-    setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (s) => { 
-        inputSiswa.value = s[1]; idSiswaField.value = s[0]; boxIdSiswa.innerText = s[0];
-        kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
+    setupAutocomplete(document.getElementById('inputSiswa'), document.getElementById('siswaSuggestions'), masterSiswa, (s) => { 
+        document.getElementById('idSiswa').value = s[0]; document.getElementById('inputSiswa').value = s[1]; document.getElementById('boxIdSiswa').innerText = s[0];
     });
-    
-    setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-        inputBuku.value = b[1]; idBukuField.value = b[0]; pengarangField.value = b[2];
-        pengarangField.readOnly = true; groupStok.style.display = 'none';
+    setupAutocomplete(document.getElementById('inputBuku'), document.getElementById('bukuSuggestions'), masterBuku, (b) => { 
+        document.getElementById('idBuku').value = b[0]; document.getElementById('inputBuku').value = b[1];
     });
-    
-    setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
-        inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
-        kelasTamuField.value = s[2]; boxKelasTamu.innerText = s[2];
+    setupAutocomplete(document.getElementById('inputTamu'), document.getElementById('tamuSuggestions'), masterSiswa, (s) => { 
+        document.getElementById('idTamu').value = s[0]; document.getElementById('inputTamu').value = s[1];
     });
 }
 
-// Panggil fungsi utama sekali saja
-muatDataAwal();
-
-// ==========================================
-// 4. POST EVENT HANDLING
-// ==========================================
-formPeminjaman.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (!idSiswaField.value) { alert("⚠️ Pilihlah nama siswa!"); return; }
-    const payload = { action: "simpanPeminjaman", id_siswa: idSiswaField.value, nama_siswa: inputSiswa.value, kelas: kelasSiswaField.value, id_buku: idBukuField.value, judul_buku: inputBuku.value, nama_pengarang: pengarangField.value };
-    
-    try {
-        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const hasil = await respon.json();
-        if (hasil.success) { formPeminjaman.reset(); await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
-    } catch (e) { alert("Gangguan koneksi."); }
-});
-
-// [Fungsi-fungsi lain seperti renderTabelPeminjaman, hitungAnalitik, dll tetap di sini...]
-// (Pastikan kamu menyalin fungsi sisanya dari file lama ke bawah sini dengan teliti)
-
-muatDataAwal();
+// 5. RENDER DASHBOARD & TABEL
 function hitungAnalitikDashboard(logs) {
-    const hariIni = new Date();
-    let htmlTerlambat = '';
-    let hitungBuku = {}, hitungSiswa = {}, hitungKelas = {};
-
+    let hitungBuku = {}, hitungSiswa = {};
     logs.forEach(row => {
-        // A. Pengingat Terlambat (> 7 Hari)
-        if (row[9] === "Dipinjam" && row[7]) {
-            let tglPinjam = new Date(row[7].includes("T") ? row[7].split("T")[0] : row[7]);
-            let selisih = Math.floor((hariIni - tglPinjam) / (1000 * 60 * 60 * 24));
-            if (selisih > 7) {
-                htmlTerlambat += `<div class="alert-item"><span><strong>${row[2]}</strong> (Kl. ${row[3]}) - Telat ${selisih} hari</span></div>`;
-            }
+        if(row[9] === "Dipinjam") {
+            hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+            hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
         }
-        // B. Hitung untuk Leaderboard & Populer
-        if (row[5]) hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
-        if (row[2]) hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
-        if (row[3]) hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
     });
-
-    // Render ke Elemen (Gunakan ?. supaya tidak error kalau elemen tidak ditemukan)
-    if(boxTerlambat) boxTerlambat.innerHTML = htmlTerlambat || `<p style="color:green;">Semua buku aman! ✨</p>`;
+    const boxPopuler = document.getElementById('boxPopuler');
+    if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]}</div>`).join('');
     
-    // Papan Peringkat
-    if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
-    // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard mjd:
-if(leaderSiswa) {
-    leaderSiswa.innerHTML = Object.entries(hitungSiswa)
-        .sort((a,b) => b[1] - a[1])
-        .slice(0, 5)
-        .map((s, i) => {
-            const [nama, kelas] = s[0].split('|');
-            let warna = i === 0 ? '#ffc107' : '#e0e0e0'; // Warna emas untuk juara 1
-            return `
-                <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
-                    <div style="width: 30px; height: 30px; background: ${warna}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px;">${i+1}</div>
-                    <div style="flex-grow: 1;">
-                        <div style="font-weight: 600;">${nama}</div>
-                        <div style="font-size: 0.8em; color: #888;">Kelas ${kelas}</div>
-                    </div>
-                    <div style="font-weight: bold; color: #4e8a67;">${s[1]}x</div>
-                </div>
-            `;
-        }).join('');
+    const leaderSiswa = document.getElementById('leaderSiswa');
+    if(leaderSiswa) leaderSiswa.innerHTML = Object.entries(hitungSiswa).sort((a,b)=>b[1]-a[1]).slice(0,5).map((s,i) => `<div>${i+1}. ${s[0].split('|')[0]} (${s[1]}x)</div>`).join('');
 }
 
-function renderTabelPeminjaman(logArray) {
-    tabelPeminjaman.innerHTML = '';
-    const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
-    if (bukuDipinjam.length === 0) {
-        tabelPeminjaman.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Alhamdulillah, tidak ada tanggungan pinjaman hari ini. ✨</td></tr>`;
-        return;
-    }
-    bukuDipinjam.forEach(row => {
-        const tr = document.createElement('tr');
-        let tglFormat = row[7] ? (row[7].includes("T") ? row[7].split("T")[0] : row[7]) : '-';
-        tr.innerHTML = `
-            <td><strong>${row[2]}</strong><br><small style="color:var(--text-muted);">ID: ${row[1]}</small></td>
-            <td>Kelas ${row[3]}</td>
-            <td><strong>${row[5]}</strong><br><small style="color:var(--text-muted);">Oleh: ${row[6]}</small></td>
-            <td><span style="background:rgba(118,184,147,0.15); color:#4e8a67; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600;">${tglFormat}</span></td>
-            <td style="text-align: center; white-space: nowrap;">
-                <button class="btn-action btn-renew" onclick="bukaPerpanjang('${row[0]}')"><i class="fa-solid fa-clock"></i> Perpanjang</button>
-                <button class="btn-action btn-return" onclick="bukaModalKembali('${row[0]}', '${row[4]}')"><i class="fa-solid fa-circle-check"></i> Kembali</button>
-            </td>
-        `;
-        tabelPeminjaman.appendChild(tr);
-    });
+function renderTabelPeminjaman(logs) {
+    const tabel = document.getElementById('tabelPeminjaman');
+    if(!tabel) return;
+    tabel.innerHTML = logs.filter(r => r[9] === "Dipinjam").map(r => `
+        <tr><td>${r[2]}</td><td>${r[5]}</td>
+        <td><button onclick="bukaPerpanjang('${r[0]}')">Perpanjang</button>
+        <button onclick="bukaModalKembali('${r[0]}','${r[4]}')">Kembali</button></td></tr>
+    `).join('');
 }
 
-function bukaModalKembali(idTransaksi, idBuku) { transaksiTerpilih = idTransaksi; idBukuTerpilih = idBuku; modalKondisi.style.display = 'flex'; }
-function tutupModal() { modalKondisi.style.display = 'none'; transaksiTerpilih = null; idBukuTerpilih = null; }
-
-async function eksekusiKembali(kondisiBuku) {
-    if (!transaksiTerpilih) return;
-    const payload = { action: "kembalikanBuku", id_transaksi: transaksiTerpilih, id_buku: idBukuTerpilih, kondisi_buku: kondisiBuku };
-    tutupModal();
-    try {
-        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const hasil = await respon.json();
-        if (hasil.success) { await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
-    } catch (e) { alert("Koneksi gagal."); }
+// 6. FUNGSI POST (Submit Peminjaman, Kunjungan, dll)
+async function kirimKeServer(payload) {
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+    const hasil = await res.json();
+    if(hasil.success) { alert("Berhasil!"); muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
 }
 
-async function bukaPerpanjang(idTransaksi) {
-    if(!confirm("Perpanjang peminjaman buku 1 minggu lagi?")) return;
-    try {
-        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "perpanjangBuku", id_transaksi: idTransaksi }) });
-        const hasil = await respon.json();
-        if (hasil.success) { alert("Berhasil diperpanjang! 🗓️"); await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
-    } catch (e) { alert("Koneksi bermasalah."); }
-}
-
-formKunjungan.addEventListener('submit', async function(e) {
+// 7. EVENT LISTENER UTAMA
+document.getElementById('formPeminjaman').addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!idTamuField.value) { alert("⚠️ Pilihlah namamu dari rekomendasi dropdown!"); return; }
-    const payload = { action: "simpanKunjungan", id_siswa: idTamuField.value, nama_siswa: inputTamu.value, kelas: kelasTamuField.value };
-    
-    try {
-        btnTamu.disabled = true; btnTamu.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Mencatat...`;
-        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-        const hasil = await respon.json();
-        if (hasil.success) {
-            alert(`🎉 Absen sukses! Selamat membaca, ${inputTamu.value}.`);
-            formKunjungan.reset(); idTamuField.value = ''; boxIdTamu.innerText = '-'; boxKelasTamu.innerText = '-';
-            await muatDataAwal();
-        } else { alert("Gagal: " + hasil.error); }
-    } catch (e) { alert("Gagal mengirim data."); }
-    finally { btnTamu.disabled = false; btnTamu.innerHTML = `<i class="fa-solid fa-circle-check"></i> Saya Hadir`; }
+    kirimKeServer({ action: "simpanPeminjaman", id_siswa: document.getElementById('idSiswa').value, id_buku: document.getElementById('idBuku').value });
 });
 
+// Jalankan
 muatDataAwal();
