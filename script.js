@@ -183,21 +183,26 @@ function hitungAnalitikDashboard(logs) {
 function renderTabelPeminjaman(logArray) {
     tabelPeminjaman.innerHTML = '';
     const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
+    
     if (bukuDipinjam.length === 0) {
-        tabelPeminjaman.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Alhamdulillah, tidak ada tanggungan pinjaman hari ini. ✨</td></tr>`;
+        tabelPeminjaman.innerHTML = `<tr><td colspan="6" style="text-align:center;">Tidak ada tanggungan. ✨</td></tr>`;
         return;
     }
+
     bukuDipinjam.forEach(row => {
         const tr = document.createElement('tr');
-        let tglFormat = row[7] ? (row[7].includes("T") ? row[7].split("T")[0] : row[7]) : '-';
+        // Pastikan kolom 7 adalah Tgl Pinjam, dan kolom 8 adalah Tgl Kembali
+        let tglPinjam = row[7] ? (row[7].includes("T") ? row[7].split("T")[0] : row[7]) : '-';
+        let tglKembali = row[8] ? (row[8].includes("T") ? row[8].split("T")[0] : row[8]) : '-';
+
         tr.innerHTML = `
-            <td><strong>${row[2]}</strong><br><small style="color:var(--text-muted);">ID: ${row[1]}</small></td>
+            <td><strong>${row[2]}</strong><br><small>ID: ${row[1]}</small></td>
             <td>Kelas ${row[3]}</td>
-            <td><strong>${row[5]}</strong><br><small style="color:var(--text-muted);">Oleh: ${row[6]}</small></td>
-            <td><span style="background:rgba(118,184,147,0.15); color:#4e8a67; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600;">${tglFormat}</span></td>
+            <td><strong>${row[5]}</strong></td>
+            <td><small>Pinjam: ${tglPinjam}</small><br><strong>Kembali: ${tglKembali}</strong></td>
             <td style="text-align: center; white-space: nowrap;">
-                <button class="btn-action btn-renew" onclick="bukaPerpanjang('${row[0]}')"><i class="fa-solid fa-clock"></i> Perpanjang</button>
-                <button class="btn-action btn-return" onclick="bukaModalKembali('${row[0]}', '${row[4]}')"><i class="fa-solid fa-circle-check"></i> Kembali</button>
+                <button class="btn-action btn-renew" onclick="bukaPerpanjang('${row[0]}')">Perpanjang</button>
+                <button class="btn-action btn-return" onclick="bukaModalKembali('${row[0]}', '${row[4]}')">Kembali</button>
             </td>
         `;
         tabelPeminjaman.appendChild(tr);
