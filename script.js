@@ -148,7 +148,7 @@ function hitungAnalitikDashboard(logs) {
     
     // Papan Peringkat
     if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
-    // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard menjadi:
+    // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard mjd:
 if(leaderSiswa) {
     leaderSiswa.innerHTML = Object.entries(hitungSiswa)
         .sort((a,b) => b[1] - a[1])
