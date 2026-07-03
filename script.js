@@ -146,24 +146,51 @@ function hitungAnalitikDashboard(logs) {
     // Papan Peringkat
     if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
     // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard mjd:
-if(leaderSiswa) {
-    leaderSiswa.innerHTML = Object.entries(hitungSiswa)
-        .sort((a,b) => b[1] - a[1])
-        .slice(0, 5)
-        .map((s, i) => {
-            const [nama, kelas] = s[0].split('|');
-            let warna = i === 0 ? '#ffc107' : '#e0e0e0';
-            return `
-                <tr>
-                    <td><div style="width: 30px; height: 30px; background:${warna}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${i+1}</div></td>
-                    <td><div style="font-weight:600;">${nama}</div><div style="font-size:0.8em; color:#888;">Kelas ${kelas}</div></td>
-                    <td style="font-weight:bold; color:#4e8a67; text-align:right;">${s[1]}x</td>
-                </tr>
-            `;
-        }).join('');
-}
-}
+// GANTI BAGIAN RENDER LEADERBOARD DI SCRIPT.JS DENGAN INI:
 
+function hitungAnalitikDashboard(logs) {
+    let hitungBuku = {}, hitungSiswa = {}, hitungKelas = {};
+
+    logs.forEach(row => {
+        // Logika hitung tetap sama
+        if(row[9] === "Dipinjam") {
+            hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+            hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
+            hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
+        }
+    });
+
+    // 1. Render Papan Peringkat SISWA (4 Kolom: Peringkat, Nama, Kelas, Total)
+    if(leaderSiswa) {
+        leaderSiswa.innerHTML = Object.entries(hitungSiswa)
+            .sort((a,b) => b[1] - a[1])
+            .slice(0, 5)
+            .map((s, i) => {
+                const [nama, kelas] = s[0].split('|');
+                return `
+                    <tr>
+                        <td><div class="rank-number ${i<3 ? 'rank-'+(i+1) : ''}">${i+1}</div></td>
+                        <td><strong>${nama}</strong></td>
+                        <td>${kelas}</td>
+                        <td style="text-align:right; font-weight:bold; color:var(--primary-green);">${s[1]}x</td>
+                    </tr>
+                `;
+            }).join('');
+    }
+
+    // 2. Render Keaktifan KELAS (3 Kolom: Peringkat, Kelas, Total)
+    if(leaderKelas) {
+        leaderKelas.innerHTML = Object.entries(hitungKelas)
+            .sort((a,b) => b[1] - a[1])
+            .map((k, i) => `
+                <tr>
+                    <td><div class="rank-number">${i+1}</div></td>
+                    <td>Kelas ${k[0]}</td>
+                    <td style="text-align:right;">${k[1]}x</td>
+                </tr>
+            `).join('');
+    }
+}
 function renderTabelPeminjaman(logArray) {
     tabelPeminjaman.innerHTML = '';
     const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
