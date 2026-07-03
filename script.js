@@ -137,9 +137,9 @@ function hitungAnalitikDashboard(logs) {
         
         // B. Hitung untuk Leaderboard & Populer
         if(row[9] === "Dipinjam") {
-            if (row[5]) hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
-            if (row[2]) hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
-            if (row[3]) hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
+            hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+            hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
+            hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
         }
     });
 
@@ -155,15 +155,15 @@ function hitungAnalitikDashboard(logs) {
             .map((s, i) => {
                 const [nama, kelas] = s[0].split('|');
                 return `<tr>
-                    <td><div class="rank-number ${i<3 ? 'rank-'+(i+1) : ''}">${i+1}</div></td>
+                    <td><div class="rank-number">${i+1}</div></td>
                     <td><strong>${nama}</strong></td>
                     <td>${kelas}</td>
-                    <td style="text-align:right; font-weight:bold; color:var(--primary-green);">${s[1]}x</td>
+                    <td style="text-align:right;">${s[1]}x</td>
                 </tr>`;
             }).join('');
     }
 
-    // E. Render Leaderboard Kelas
+    // Render Kelas (3 kolom: Peringkat, Kelas, Total)
     if(leaderKelas) {
         leaderKelas.innerHTML = Object.entries(hitungKelas)
             .sort((a,b) => b[1] - a[1])
