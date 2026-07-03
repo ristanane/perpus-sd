@@ -185,21 +185,22 @@ function renderTabelPeminjaman(logArray) {
     const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
     
     if (bukuDipinjam.length === 0) {
-        tabelPeminjaman.innerHTML = `<tr><td colspan="6" style="text-align:center;">Tidak ada tanggungan. ✨</td></tr>`;
+        tabelPeminjaman.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:30px;">Alhamdulillah, tidak ada tanggungan pinjaman hari ini. ✨</td></tr>`;
         return;
     }
 
     bukuDipinjam.forEach(row => {
         const tr = document.createElement('tr');
-        // Pastikan kolom 7 adalah Tgl Pinjam, dan kolom 8 adalah Tgl Kembali
+        // Pastikan kolom 7 (Pinjam) dan 8 (Kembali) benar
         let tglPinjam = row[7] ? (row[7].includes("T") ? row[7].split("T")[0] : row[7]) : '-';
         let tglKembali = row[8] ? (row[8].includes("T") ? row[8].split("T")[0] : row[8]) : '-';
 
         tr.innerHTML = `
-            <td><strong>${row[2]}</strong><br><small>ID: ${row[1]}</small></td>
+            <td><strong>${row[2]}</strong><br><small style="color:var(--text-muted);">ID: ${row[1]}</small></td>
             <td>Kelas ${row[3]}</td>
             <td><strong>${row[5]}</strong></td>
-            <td><small>Pinjam: ${tglPinjam}</small><br><strong>Kembali: ${tglKembali}</strong></td>
+            <td>${tglPinjam}</td>
+            <td style="color:var(--accent-red); font-weight:600;">${tglKembali}</td>
             <td style="text-align: center; white-space: nowrap;">
                 <button class="btn-action btn-renew" onclick="bukaPerpanjang('${row[0]}')">Perpanjang</button>
                 <button class="btn-action btn-return" onclick="bukaModalKembali('${row[0]}', '${row[4]}')">Kembali</button>
