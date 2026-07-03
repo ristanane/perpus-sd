@@ -83,7 +83,7 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     inputEl.addEventListener('blur', () => setTimeout(() => { suggestionEl.style.display = 'none'; }, 200));
 }
 
-// FUNGSI INISIALISASI (Panggil sekali aja di dlm muatDataAwal)
+// FUNGSI INISIALISASI (Panggil sekali aja di dalam muatDataAwal)
 function inisialisasiSistem() {
     setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (s) => { 
         inputSiswa.value = s[1]; idSiswaField.value = s[0]; boxIdSiswa.innerText = s[0];
