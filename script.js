@@ -152,16 +152,13 @@ if(leaderSiswa) {
         .slice(0, 5)
         .map((s, i) => {
             const [nama, kelas] = s[0].split('|');
-            let warna = i === 0 ? '#ffc107' : '#e0e0e0'; // Warna emas untuk juara 1
+            let warna = i === 0 ? '#ffc107' : '#e0e0e0';
             return `
-                <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
-                    <div style="width: 30px; height: 30px; background: ${warna}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px;">${i+1}</div>
-                    <div style="flex-grow: 1;">
-                        <div style="font-weight: 600;">${nama}</div>
-                        <div style="font-size: 0.8em; color: #888;">Kelas ${kelas}</div>
-                    </div>
-                    <div style="font-weight: bold; color: #4e8a67;">${s[1]}x</div>
-                </div>
+                <tr>
+                    <td><div style="width: 30px; height: 30px; background:${warna}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold;">${i+1}</div></td>
+                    <td><div style="font-weight:600;">${nama}</div><div style="font-size:0.8em; color:#888;">Kelas ${kelas}</div></td>
+                    <td style="font-weight:bold; color:#4e8a67; text-align:right;">${s[1]}x</td>
+                </tr>
             `;
         }).join('');
 }
