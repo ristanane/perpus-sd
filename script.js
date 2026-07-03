@@ -136,12 +136,17 @@ function hitungAnalitikDashboard(logs) {
         }
         
         // B. Hitung untuk Leaderboard & Populer
-        if(row[9] === "Dipinjam") {
-            hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
-            hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
-            hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
-        }
-    });
+        if (row[2]) { // Pastikan ada nama siswa
+        let kunci = `${row[2]}|${row[3]}`;
+        hitungSiswa[kunci] = (hitungSiswa[kunci] || 0) + 1;
+    }
+    if (row[3]) {
+        hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
+    }
+    if (row[5]) {
+        hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+    }
+});
 
     // C. Render ke Elemen
     if(boxTerlambat) boxTerlambat.innerHTML = htmlTerlambat || `<p style="color:green;">Semua buku aman! ✨</p>`;
