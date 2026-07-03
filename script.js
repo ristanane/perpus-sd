@@ -116,6 +116,38 @@ formPeminjaman.addEventListener('submit', async function(e) {
 // (Pastikan kamu menyalin fungsi sisanya dari file lama ke bawah sini dengan teliti)
 
 muatDataAwal();
+function hitungAnalitikDashboard(logs) {
+    const hariIni = new Date();
+    let htmlTerlambat = '';
+    let hitungBuku = {}, hitungSiswa = {}, hitungKelas = {};
+
+    logs.forEach(row => {
+        // A. Pengingat Terlambat (> 7 Hari)
+        if (row[9] === "Dipinjam" && row[7]) {
+            let tglPinjam = new Date(row[7].includes("T") ? row[7].split("T")[0] : row[7]);
+            let selisih = Math.floor((hariIni - tglPinjam) / (1000 * 60 * 60 * 24));
+            if (selisih > 7) {
+                htmlTerlambat += `<div class="alert-item"><span><strong>${row[2]}</strong> (Kl. ${row[3]}) - Telat ${selisih} hari</span></div>`;
+            }
+        }
+        // B. Hitung untuk Leaderboard & Populer
+        if (row[5]) hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+        if (row[2]) hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
+        if (row[3]) hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
+    });
+
+    // Render ke Elemen (Gunakan ?. supaya tidak error kalau elemen tidak ditemukan)
+    if(boxTerlambat) boxTerlambat.innerHTML = htmlTerlambat || `<p style="color:green;">Semua buku aman! ✨</p>`;
+    
+    // Papan Peringkat
+    if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
+    if(leaderSiswa) leaderSiswa.innerHTML = Object.entries(hitungSiswa).sort((a,b)=>b[1]-a[1]).slice(0,5).map((s,i) => {
+        const [nama, kelas] = s[0].split('|');
+        return `<tr><td>${i+1}</td><td>${nama}</td><td>Kl. ${kelas}</td><td>${s[1]}x</td></tr>`;
+    }).join('');
+    if(leaderKelas) leaderKelas.innerHTML = Object.entries(hitungKelas).sort((a,b)=>b[1]-a[1]).map((k,i) => `<tr><td>${i+1}</td><td>Kelas ${k[0]}</td><td>${k[1]}x</td></tr>`).join('');
+}
+
 function renderTabelPeminjaman(logArray) {
     tabelPeminjaman.innerHTML = '';
     const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
