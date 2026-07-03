@@ -38,7 +38,7 @@ let transaksiTerpilih = null;
 let idBukuTerpilih = null;
 
 // ==========================================
-// 2. KELOLA DATA
+// 2. KELOLA DATA (Bagian bawah script.js)
 // ==========================================
 async function muatDataAwal() {
     try {
@@ -46,14 +46,16 @@ async function muatDataAwal() {
         const data = await respon.json();
         masterSiswa = data.siswa || [];
         masterBuku = data.buku || [];
+        
+        // Panggil inisialisasi di sini agar data sudah terisi
+        inisialisasiSistem(); 
+        
         renderTabelPeminjaman(data.log || []);
         hitungAnalitikDashboard(data.log || []);
     } catch (error) { console.error("Gagal sinkronisasi data:", error); }
 }
 
-// ==========================================
-// 3. AUTOCOMPLETE ENGINE
-// ==========================================
+// 3. AUTOCOMPLETE ENGINE (Fungsi tetap sama)
 function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     function jalankanPencarian() {
         const val = inputEl.value.toLowerCase().trim();
@@ -81,21 +83,26 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
     inputEl.addEventListener('blur', () => setTimeout(() => { suggestionEl.style.display = 'none'; }, 200));
 }
 
-// Inisialisasi AutoComplete
-setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (s) => {
-    inputSiswa.value = s[1]; idSiswaField.value = s[0]; boxIdSiswa.innerText = s[0];
-    kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2];
-});
+// FUNGSI INISIALISASI (Panggil sekali saja di dalam muatDataAwal)
+function inisialisasiSistem() {
+    setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (s) => { 
+        inputSiswa.value = s[1]; idSiswaField.value = s[0]; boxIdSiswa.innerText = s[0];
+        kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
+    });
+    
+    setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
+        inputBuku.value = b[1]; idBukuField.value = b[0]; pengarangField.value = b[2];
+        pengarangField.readOnly = true; groupStok.style.display = 'none';
+    });
+    
+    setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
+        inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
+        kelasTamuField.value = s[2]; boxKelasTamu.innerText = s[2];
+    });
+}
 
-setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => {
-    inputBuku.value = b[1]; idBukuField.value = b[0]; pengarangField.value = b[2];
-    pengarangField.readOnly = true; groupStok.style.display = 'none';
-});
-
-setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => {
-    inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
-    kelasTamuField.value = s[2]; boxKelasTamu.innerText = s[2];
-});
+// Panggil fungsi utama sekali saja
+muatDataAwal();
 
 // ==========================================
 // 4. POST EVENT HANDLING
