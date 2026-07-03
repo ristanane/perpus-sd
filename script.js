@@ -119,7 +119,7 @@ formPeminjaman.addEventListener('submit', async function(e) {
     } catch (e) { alert("Gangguan koneksi."); }
 });
 
-// [Fungsi-fungsi lain seperti renderTabelPeminjaman, hitungAnalitik, dll tetap di sini...]
+// [Fungsi-fungsi lain seperti renderTabelPeminjaman, hitungAnalitik, dll ttp di sini...]
 // (Pastikan kamu menyalin fungsi sisanya dari file lama ke bawah sini dengan teliti)
 
 muatDataAwal();
