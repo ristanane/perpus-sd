@@ -96,7 +96,7 @@ async function bukaPerpanjang(id) {
 }
 
 function bukaModalKembali(idTransaksi, idBuku) {
-    // Sesuaikan ID elemen modal kamu di sini
+    // Sesuaikan ID elemen modal km di sini
     const modal = document.getElementById('modalKondisi');
     if(modal) {
         modal.style.display = 'flex';
