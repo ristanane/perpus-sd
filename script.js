@@ -219,13 +219,27 @@ async function eksekusiKembali(kondisiBuku) {
 }
 
 async function bukaPerpanjang(idTransaksi) {
-    alert("Tombol diklik! ID: " + idTransaksi); // <--- TAMBAHKAN INI
     if(!confirm("Perpanjang peminjaman buku 1 minggu lagi?")) return;
+    
     try {
-        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "perpanjangBuku", id_transaksi: idTransaksi }) });
+        const respon = await fetch(API_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ action: "perpanjangBuku", id_transaksi: idTransaksi }) 
+        });
+        
+        // Cek apakah server memberikan jawaban
         const hasil = await respon.json();
-        if (hasil.success) { alert("Berhasil diperpanjang! 🗓️"); await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
-    } catch (e) { alert("Koneksi bermasalah."); }
+        
+        if (hasil.success) { 
+            alert("Berhasil diperpanjang! 🗓️"); 
+            await muatDataAwal(); 
+        } else { 
+            alert("Gagal dari server: " + hasil.error); 
+        }
+    } catch (e) { 
+        console.error("Error lengkap:", e); // <--- KITA LIHAT INI
+        alert("Koneksi bermasalah. Cek Console (F12) untuk detailnya."); 
+    }
 }
 
 formKunjungan.addEventListener('submit', async function(e) {
