@@ -119,14 +119,14 @@ formPeminjaman.addEventListener('submit', async function(e) {
 // [Fungsi-fungsi lain seperti renderTabelPeminjaman, hitungAnalitik, dll ttp di sini...]
 // (Pastikan kamu menyalin fungsi sisanya dari file lama ke bawah sini dengan teliti)
 
-muatDataAwal();
 function hitungAnalitikDashboard(logs) {
     const hariIni = new Date();
     let htmlTerlambat = '';
     let hitungBuku = {}, hitungSiswa = {}, hitungKelas = {};
 
+    // Cukup satu kali loop untuk semuanya
     logs.forEach(row => {
-        // A. Pengingat Terlambat (> 7 Hari)
+        // A. Pengingat Terlambat
         if (row[9] === "Dipinjam" && row[7]) {
             let tglPinjam = new Date(row[7].includes("T") ? row[7].split("T")[0] : row[7]);
             let selisih = Math.floor((hariIni - tglPinjam) / (1000 * 60 * 60 * 24));
@@ -134,61 +134,44 @@ function hitungAnalitikDashboard(logs) {
                 htmlTerlambat += `<div class="alert-item"><span><strong>${row[2]}</strong> (Kl. ${row[3]}) - Telat ${selisih} hari</span></div>`;
             }
         }
+        
         // B. Hitung untuk Leaderboard & Populer
-        if (row[5]) hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
-        if (row[2]) hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
-        if (row[3]) hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
-    });
-
-    // Render ke Elemen (Gunakan ?. supaya tidak error kalau elemen tidak ditemukan)
-    if(boxTerlambat) boxTerlambat.innerHTML = htmlTerlambat || `<p style="color:green;">Semua buku aman! ✨</p>`;
-    
-    // Papan Peringkat
-    if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
-    // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard mjd:
-// GANTI BAGIAN RENDER LEADERBOARD DI SCRIPT.JS DENGAN INI:
-
-function hitungAnalitikDashboard(logs) {
-    let hitungBuku = {}, hitungSiswa = {}, hitungKelas = {};
-
-    logs.forEach(row => {
-        // Logika hitung tetap sama
         if(row[9] === "Dipinjam") {
-            hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
-            hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
-            hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
+            if (row[5]) hitungBuku[row[5]] = (hitungBuku[row[5]] || 0) + 1;
+            if (row[2]) hitungSiswa[`${row[2]}|${row[3]}`] = (hitungSiswa[`${row[2]}|${row[3]}`] || 0) + 1;
+            if (row[3]) hitungKelas[row[3]] = (hitungKelas[row[3]] || 0) + 1;
         }
     });
 
-    // 1. Render Papan Peringkat SISWA (4 Kolom: Peringkat, Nama, Kelas, Total)
+    // C. Render ke Elemen
+    if(boxTerlambat) boxTerlambat.innerHTML = htmlTerlambat || `<p style="color:green;">Semua buku aman! ✨</p>`;
+    if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
+    
+    // D. Render Leaderboard Siswa (4 Kolom)
     if(leaderSiswa) {
         leaderSiswa.innerHTML = Object.entries(hitungSiswa)
             .sort((a,b) => b[1] - a[1])
             .slice(0, 5)
             .map((s, i) => {
                 const [nama, kelas] = s[0].split('|');
-                return `
-                    <tr>
-                        <td><div class="rank-number ${i<3 ? 'rank-'+(i+1) : ''}">${i+1}</div></td>
-                        <td><strong>${nama}</strong></td>
-                        <td>${kelas}</td>
-                        <td style="text-align:right; font-weight:bold; color:var(--primary-green);">${s[1]}x</td>
-                    </tr>
-                `;
+                return `<tr>
+                    <td><div class="rank-number ${i<3 ? 'rank-'+(i+1) : ''}">${i+1}</div></td>
+                    <td><strong>${nama}</strong></td>
+                    <td>${kelas}</td>
+                    <td style="text-align:right; font-weight:bold; color:var(--primary-green);">${s[1]}x</td>
+                </tr>`;
             }).join('');
     }
 
-    // 2. Render Keaktifan KELAS (3 Kolom: Peringkat, Kelas, Total)
+    // E. Render Leaderboard Kelas
     if(leaderKelas) {
         leaderKelas.innerHTML = Object.entries(hitungKelas)
             .sort((a,b) => b[1] - a[1])
-            .map((k, i) => `
-                <tr>
-                    <td><div class="rank-number">${i+1}</div></td>
-                    <td>Kelas ${k[0]}</td>
-                    <td style="text-align:right;">${k[1]}x</td>
-                </tr>
-            `).join('');
+            .map((k, i) => `<tr>
+                <td><div class="rank-number">${i+1}</div></td>
+                <td>Kelas ${k[0]}</td>
+                <td style="text-align:right;">${k[1]}x</td>
+            </tr>`).join('');
     }
 }
 
