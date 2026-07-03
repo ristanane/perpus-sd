@@ -121,7 +121,28 @@
     max-height: 200px !important;
     overflow-y: auto !important;
 }
-        
+    /* Agar tabel peringkat mengisi ruang dan rapi */
+    .rank-table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin-top: 15px; 
+    }
+    .rank-table th { 
+        color: #888; 
+        font-size: 13px; 
+        padding: 10px; 
+        text-align: left; 
+    }
+    .rank-table td { 
+        padding: 12px 10px; 
+        border-bottom: 1px solid #f0f0f0; 
+    }
+    /* Mengatur agar kolom peringkat terlihat menonjol */
+    .rank-cell { 
+        display: flex; 
+        align-items: center; 
+        gap: 10px; 
+    }   
     </style>
 </head>
 <body>
@@ -236,10 +257,18 @@
     <div id="tab-leaderboard" class="container-leaderboard">
         <div class="card">
             <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-crown" style="color:#d97706;"></i> Top 5 Siswa (Kandidat Raja/Ratu)</h3>
-            <table>
-                <thead><tr><th>Peringkat</th><th>Nama Siswa</th><th>Kelas</th><th style="text-align:right;">Total Pinjam</th></tr></thead>
-                <tbody id="leaderSiswa"></tbody>
-            </table>
+            <h3>🥇 Top 5 Siswa</h3>
+<table class="rank-table">
+    <thead>
+        <tr>
+            <th>Peringkat</th>
+            <th>Nama Siswa</th>
+            <th style="text-align:right">Total</th>
+        </tr>
+    </thead>
+    <tbody id="leaderSiswa">
+        </tbody>
+</table>
         </div>
         <div class="card">
             <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-school" style="color:#475569;"></i> Keaktifan Kelas</h3>
