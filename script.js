@@ -90,9 +90,27 @@ function inisialisasiSistem() {
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
+    // AUTOCOMPLETE BUKU
     setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-        inputBuku.value = b[1]; idBukuField.value = b[0]; pengarangField.value = b[2];
-        pengarangField.readOnly = true; groupStok.style.display = 'none';
+        inputBuku.value = b[1]; 
+        idBukuField.value = b[0]; 
+        pengarangField.value = b[2]; 
+        pengarangField.readOnly = true; // Kunci kalau buku sudah ada
+        groupStok.style.display = 'none';
+    });
+
+    // Tambahkan event untuk mendeteksi input manual
+    inputBuku.addEventListener('input', function() {
+        // Jika input kosong atau tidak cocok, buka kunci pengarang
+        const val = this.value.toLowerCase();
+        const exists = masterBuku.some(b => b[1].toLowerCase() === val);
+        
+        if (!exists) {
+            pengarangField.readOnly = false;
+            pengarangField.value = ''; // Kosongkan biar bisa diisi manual
+            idBukuField.value = 'BARU'; // Tandai sebagai buku baru
+            groupStok.style.display = 'block'; // Tampilkan stok
+        }
     });
     
     setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
@@ -106,9 +124,19 @@ function inisialisasiSistem() {
 // ==========================================
 formPeminjaman.addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!idSiswaField.value) { alert("⚠️ Pilihlah nama siswa!"); return; }
-    const payload = { action: "simpanPeminjaman", id_siswa: idSiswaField.value, nama_siswa: inputSiswa.value, kelas: kelasSiswaField.value, id_buku: idBukuField.value, judul_buku: inputBuku.value, nama_pengarang: pengarangField.value };
+    if (!idSiswaField.value || !inputBuku.value) { alert("⚠️ Lengkapi data!"); return; }
     
+    const payload = { 
+        action: "simpanPeminjaman", 
+        id_siswa: idSiswaField.value, 
+        nama_siswa: inputSiswa.value, 
+        kelas: kelasSiswaField.value, 
+        id_buku: idBukuField.value, // Kalau 'BARU', nanti di Apps Script kita proses
+        judul_buku: inputBuku.value, 
+        nama_pengarang: pengarangField.value,
+        stok: stokTotalField.value // Kirim juga stok kalau ada
+    };
+   
     try {
         const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
         const hasil = await respon.json();
