@@ -177,7 +177,6 @@ function hitungAnalitikDashboard(logs) {
                 `;
             }).join('');
     }
-}
 
     // 2. Render Keaktifan KELAS (3 Kolom: Peringkat, Kelas, Total)
     if(leaderKelas) {
@@ -192,6 +191,7 @@ function hitungAnalitikDashboard(logs) {
             `).join('');
     }
 }
+
 function renderTabelPeminjaman(logArray) {
     tabelPeminjaman.innerHTML = '';
     const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
