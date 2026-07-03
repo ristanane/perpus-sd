@@ -254,39 +254,37 @@
     </div>
 
     <!-- TAB 3: PAPAN PERINGKAT / RAJA & RATU BUKU (FITUR 5) -->
-    <div id="tab-leaderboard" class="container-leaderboard">
-    <div class="leaderboard-wrapper" style="display: flex; gap: 24px; flex-wrap: wrap; width: 100%;">
-        
-        <div class="card" style="flex: 1; min-width: 350px;">
-            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-crown" style="color:#d97706;"></i> Top 5 Siswa</h3>
-            <table class="rank-table">
-                <thead>
-                    <tr>
-                        <th>Peringkat</th>
-                        <th>Nama Siswa</th>
-                        <th>Kelas</th>
-                        <th style="text-align:right">Total</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderSiswa"></tbody>
-            </table>
-        </div>
+    <div id="tab-leaderboard" class="container-leaderboard" style="display: none; flex-wrap: wrap; gap: 24px;">
+    
+    <div class="card" style="flex: 1; min-width: 350px;">
+        <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-crown" style="color:#d97706;"></i> Top 5 Siswa</h3>
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>Peringkat</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th style="text-align:right">Total</th>
+                </tr>
+            </thead>
+            <tbody id="leaderSiswa"></tbody>
+        </table>
+    </div>
 
-        <div class="card" style="flex: 1; min-width: 350px;">
-            <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-school" style="color:#475569;"></i> Keaktifan Kelas</h3>
-            <table class="rank-table">
-                <thead>
-                    <tr>
-                        <th>Peringkat</th>
-                        <th>Kelas</th>
-                        <th style="text-align:right;">Total</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderKelas"></tbody>
-            </table>
-        </div>
-
-    </div> </div>
+    <div class="card" style="flex: 1; min-width: 350px;">
+        <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-school" style="color:#475569;"></i> Keaktifan Kelas</h3>
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>Peringkat</th>
+                    <th>Kelas</th>
+                    <th style="text-align:right;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="leaderKelas"></tbody>
+        </table>
+    </div>
+</div>
 
     <!-- MODAL KONDISI BUKU -->
     <div id="modalKondisi" class="modal">
