@@ -177,6 +177,7 @@ function hitungAnalitikDashboard(logs) {
                 `;
             }).join('');
     }
+}
 
     // 2. Render Keaktifan KELAS (3 Kolom: Peringkat, Kelas, Total)
     if(leaderKelas) {
