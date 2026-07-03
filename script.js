@@ -47,7 +47,7 @@ async function muatDataAwal() {
         masterSiswa = data.siswa || [];
         masterBuku = data.buku || [];
         
-        // Panggil inisialisasi di sini agar data sudh terisi
+        // Panggil inisialisasi di sini agar data sudaaaaah terisi
         inisialisasiSistem(); 
         
         renderTabelPeminjaman(data.log || []);
