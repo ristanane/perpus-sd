@@ -116,3 +116,69 @@ formPeminjaman.addEventListener('submit', async function(e) {
 // (Pastikan kamu menyalin fungsi sisanya dari file lama ke bawah sini dengan teliti)
 
 muatDataAwal();
+function renderTabelPeminjaman(logArray) {
+    tabelPeminjaman.innerHTML = '';
+    const bukuDipinjam = logArray.filter(row => row[9] === "Dipinjam");
+    if (bukuDipinjam.length === 0) {
+        tabelPeminjaman.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:30px;">Alhamdulillah, tidak ada tanggungan pinjaman hari ini. ✨</td></tr>`;
+        return;
+    }
+    bukuDipinjam.forEach(row => {
+        const tr = document.createElement('tr');
+        let tglFormat = row[7] ? (row[7].includes("T") ? row[7].split("T")[0] : row[7]) : '-';
+        tr.innerHTML = `
+            <td><strong>${row[2]}</strong><br><small style="color:var(--text-muted);">ID: ${row[1]}</small></td>
+            <td>Kelas ${row[3]}</td>
+            <td><strong>${row[5]}</strong><br><small style="color:var(--text-muted);">Oleh: ${row[6]}</small></td>
+            <td><span style="background:rgba(118,184,147,0.15); color:#4e8a67; padding:4px 8px; border-radius:6px; font-size:12px; font-weight:600;">${tglFormat}</span></td>
+            <td style="text-align: center; white-space: nowrap;">
+                <button class="btn-action btn-renew" onclick="bukaPerpanjang('${row[0]}')"><i class="fa-solid fa-clock"></i> Perpanjang</button>
+                <button class="btn-action btn-return" onclick="bukaModalKembali('${row[0]}', '${row[4]}')"><i class="fa-solid fa-circle-check"></i> Kembali</button>
+            </td>
+        `;
+        tabelPeminjaman.appendChild(tr);
+    });
+}
+
+function bukaModalKembali(idTransaksi, idBuku) { transaksiTerpilih = idTransaksi; idBukuTerpilih = idBuku; modalKondisi.style.display = 'flex'; }
+function tutupModal() { modalKondisi.style.display = 'none'; transaksiTerpilih = null; idBukuTerpilih = null; }
+
+async function eksekusiKembali(kondisiBuku) {
+    if (!transaksiTerpilih) return;
+    const payload = { action: "kembalikanBuku", id_transaksi: transaksiTerpilih, id_buku: idBukuTerpilih, kondisi_buku: kondisiBuku };
+    tutupModal();
+    try {
+        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const hasil = await respon.json();
+        if (hasil.success) { await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
+    } catch (e) { alert("Koneksi gagal."); }
+}
+
+async function bukaPerpanjang(idTransaksi) {
+    if(!confirm("Perpanjang peminjaman buku 1 minggu lagi?")) return;
+    try {
+        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "perpanjangBuku", id_transaksi: idTransaksi }) });
+        const hasil = await respon.json();
+        if (hasil.success) { alert("Berhasil diperpanjang! 🗓️"); await muatDataAwal(); } else { alert("Gagal: " + hasil.error); }
+    } catch (e) { alert("Koneksi bermasalah."); }
+}
+
+formKunjungan.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (!idTamuField.value) { alert("⚠️ Pilihlah namamu dari rekomendasi dropdown!"); return; }
+    const payload = { action: "simpanKunjungan", id_siswa: idTamuField.value, nama_siswa: inputTamu.value, kelas: kelasTamuField.value };
+    
+    try {
+        btnTamu.disabled = true; btnTamu.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Mencatat...`;
+        const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+        const hasil = await respon.json();
+        if (hasil.success) {
+            alert(`🎉 Absen sukses! Selamat membaca, ${inputTamu.value}.`);
+            formKunjungan.reset(); idTamuField.value = ''; boxIdTamu.innerText = '-'; boxKelasTamu.innerText = '-';
+            await muatDataAwal();
+        } else { alert("Gagal: " + hasil.error); }
+    } catch (e) { alert("Gagal mengirim data."); }
+    finally { btnTamu.disabled = false; btnTamu.innerHTML = `<i class="fa-solid fa-circle-check"></i> Saya Hadir`; }
+});
+
+muatDataAwal();
