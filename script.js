@@ -101,9 +101,6 @@ function inisialisasiSistem() {
     });
 }
 
-// Panggil fungsi utama sekali saja
-muatDataAwal();
-
 // ==========================================
 // 4. POST EVENT HANDLING
 // ==========================================
@@ -167,6 +164,7 @@ if(leaderSiswa) {
                 </div>
             `;
         }).join('');
+}
 }
 
 function renderTabelPeminjaman(logArray) {
