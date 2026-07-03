@@ -148,11 +148,25 @@ function hitungAnalitikDashboard(logs) {
     
     // Papan Peringkat
     if(boxPopuler) boxPopuler.innerHTML = Object.entries(hitungBuku).sort((a,b)=>b[1]-a[1]).slice(0,3).map(b => `<div class="populer-tag">${b[0]} (${b[1]}x)</div>`).join('');
-    if(leaderSiswa) leaderSiswa.innerHTML = Object.entries(hitungSiswa).sort((a,b)=>b[1]-a[1]).slice(0,5).map((s,i) => {
-        const [nama, kelas] = s[0].split('|');
-        return `<tr><td>${i+1}</td><td>${nama}</td><td>Kl. ${kelas}</td><td>${s[1]}x</td></tr>`;
-    }).join('');
-    if(leaderKelas) leaderKelas.innerHTML = Object.entries(hitungKelas).sort((a,b)=>b[1]-a[1]).map((k,i) => `<tr><td>${i+1}</td><td>Kelas ${k[0]}</td><td>${k[1]}x</td></tr>`).join('');
+    // Ganti bagian leaderSiswa di dalam hitungAnalitikDashboard menjadi:
+if(leaderSiswa) {
+    leaderSiswa.innerHTML = Object.entries(hitungSiswa)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 5)
+        .map((s, i) => {
+            const [nama, kelas] = s[0].split('|');
+            let warna = i === 0 ? '#ffc107' : '#e0e0e0'; // Warna emas untuk juara 1
+            return `
+                <div style="display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                    <div style="width: 30px; height: 30px; background: ${warna}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px;">${i+1}</div>
+                    <div style="flex-grow: 1;">
+                        <div style="font-weight: 600;">${nama}</div>
+                        <div style="font-size: 0.8em; color: #888;">Kelas ${kelas}</div>
+                    </div>
+                    <div style="font-weight: bold; color: #4e8a67;">${s[1]}x</div>
+                </div>
+            `;
+        }).join('');
 }
 
 function renderTabelPeminjaman(logArray) {
