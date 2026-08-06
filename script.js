@@ -100,6 +100,12 @@ setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => {
     // Sembunyikan karena memilih buku dari daftar
     if(groupBukuBaru) groupBukuBaru.style.display = 'none';
     customIdBukuField.value = '';
+
+    // === TAMBAHKAN BARIS INI UNTUK MENUTUP DROPDOWN SARAN ===
+    if(bukuSuggestions) {
+        bukuSuggestions.innerHTML = ''; 
+        // Atau jika menggunakan kelas aktif/hidden: bukuSuggestions.style.display = 'none';
+    }
 });
 
     // Event untuk deteksi input buku manual / pencarian via ID Buku
