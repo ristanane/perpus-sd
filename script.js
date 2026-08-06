@@ -13,10 +13,10 @@ const kelasSiswaField = document.getElementById('kelasSiswa');
 const boxKelasSiswa = document.getElementById('boxKelasSiswa');
 const siswaSuggestions = document.getElementById('siswaSuggestions');
 const inputBuku = document.getElementById('inputBuku');
-const idBukuField = document.getElementById('idBuku');
 const pengarangField = document.getElementById('pengarangBuku');
-const stokTotalField = document.getElementById('stokTotal');
-const groupStok = document.getElementById('groupStok');
+const inputBukuEl = document.getElementById('inputBuku');
+const groupBukuBaru = document.getElementById('groupIdBukuBaru');
+const customIdBukuField = document.getElementById('inputCustomIdBuku');
 const bukuSuggestions = document.getElementById('bukuSuggestions');
 const btnSimpan = document.getElementById('btnSimpan');
 const tabelPeminjaman = document.getElementById('tabelPeminjaman');
@@ -103,40 +103,44 @@ setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => {
 });
 
     // Event untuk deteksi input buku manual / pencarian via ID Buku
-// Tangkap elemen ID Buku Baru dari HTML
-const groupBukuBaru = document.getElementById('groupIdBukuBaru');
-const customIdBukuField = document.getElementById('inputCustomIdBuku');
-
-// Event saat mengetik di input buku
-inputBuku.addEventListener('input', function() {
-    const val = this.value.toLowerCase().trim();
-    
-    // Cari apakah judul atau ID buku cocok dengan database masterBuku
-    const matchedBuku = masterBuku.find(b => 
-        (b[1] && b[1].toLowerCase().includes(val)) || 
-        (b[0] && b[0].toLowerCase().includes(val))
-    );
-    
-    if (!matchedBuku && val !== "") {
-        // --- JIKA BUKU BELUM ADA (BUKU BARU) ---
-        pengarangField.readOnly = false;
-        pengarangField.value = ''; 
-        idBukuField.value = 'BARU'; 
+if (inputBuku) {
+    inputBuku.addEventListener('input', function() {
+        const val = this.value.toLowerCase().trim();
         
-        // MUNCULKAN KOTAK ID BUKU BARU DI SINI
-        if(groupBukuBaru) groupBukuBaru.style.display = 'block'; 
+        // Cek apakah ada yang cocok di masterBuku (berdasarkan Judul atau ID)
+        const matchedBuku = masterBuku.find(b => 
+            (b[1] && b[1].toLowerCase().includes(val)) || 
+            (b[0] && b[0].toLowerCase().includes(val))
+        );
         
-    } else if (matchedBuku) {
-        // --- JIKA BUKU SUDAH ADA (BUKU LAMA) ---
-        idBukuField.value = matchedBuku[0];
-        pengarangField.value = matchedBuku[2];
-        pengarangField.readOnly = true;
-        
-        // SEMBUNYIKAN KOTAK ID BUKU BARU
-        if(groupBukuBaru) groupBukuBaru.style.display = 'none';
-        customIdBukuField.value = ''; // Kosongkan isinya
-    }
-});
+        if (!matchedBuku && val !== "") {
+            // === BUKU BARU ===
+            pengarangField.readOnly = false;
+            pengarangField.value = ''; 
+            idBukuField.value = 'BARU'; 
+            
+            // Paksa munculkan dengan style block
+            if (groupBukuBaru) {
+                groupBukuBaru.style.setProperty('display', 'block', 'important');
+            }
+        } else {
+            // === BUKU LAMA ===
+            if (matchedBuku) {
+                idBukuField.value = matchedBuku[0];
+                pengarangField.value = matchedBuku[2];
+                pengarangField.readOnly = true;
+            }
+            
+            // Sembunyikan kembali
+            if (groupBukuBaru) {
+                groupBukuBaru.style.setProperty('display', 'none', 'important');
+            }
+            if (customIdBukuField) {
+                customIdBukuField.value = '';
+            }
+        }
+    });
+}
     
     setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
         inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
