@@ -104,13 +104,18 @@ setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => {
     // === TAMBAHKAN BARIS INI UNTUK MENUTUP DROPDOWN SARAN ===
     if(bukuSuggestions) {
         bukuSuggestions.innerHTML = ''; 
-        // Atau jika menggunakan kelas aktif/hidden: bukuSuggestions.style.display = 'none';
+        bukuSuggestions.style.setProperty('display', 'none', 'important');
     }
 });
 
     // Event untuk deteksi input buku manual / pencarian via ID Buku
 if (inputBuku) {
     inputBuku.addEventListener('input', function() {
+        // Ketika mengetik, pastikan dropdown saran bisa muncul lagi
+        if (bukuSuggestions) {
+            bukuSuggestions.style.removeProperty('display'); // atau biarkan fungsi autocomplete yang mengatur
+        }
+        
         const val = this.value.toLowerCase().trim();
         
         // Cek apakah ada yang cocok di masterBuku (berdasarkan Judul atau ID)
