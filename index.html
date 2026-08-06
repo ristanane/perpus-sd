@@ -215,11 +215,11 @@
                     <input type="text" id="pengarangBuku" class="form-control" style="padding-left: 16px;" placeholder="Nama penulis buku">
                     <input type="hidden" id="idBuku">
                 </div>
-                <!-- Ganti bagian "Stok Awal Buku Baru" dengan ini -->
-                <div class="form-group" id="groupIdBukuBaru" style="display: none;">
-                    <label>ID Buku Baru (Kode Inventaris)</label>
-                <input type="text" id="inputCustomIdBuku" class="form-control" style="padding-left: 16px;" placeholder="Contoh: B001 atau Masukkan ID Buku">
-                </div>
+                <!-- KOTAK INPUT ID BUKU BARU (Awalnya tersembunyi, muncul jika buku belum ada di database) -->
+<div class="form-group" id="groupIdBukuBaru" style="display: none; margin-bottom: 16px;">
+    <label style="font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: block;">ID Buku Baru (Kode Inventaris)</label>
+    <input type="text" id="inputCustomIdBuku" class="form-control" placeholder="Contoh: B001 atau Masukkan ID Buku" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px;">
+</div>
                 <button type="submit" id="btnSimpan" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> Konfirmasi Peminjaman</button>
             </form>
         </div>
