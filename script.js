@@ -96,16 +96,18 @@ setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => {
     idBukuField.value = b[0]; // ID Buku Lama
     pengarangField.value = b[2]; 
     pengarangField.readOnly = true; 
-    
+     
     // Sembunyikan karena memilih buku dari daftar
     if(groupBukuBaru) groupBukuBaru.style.display = 'none';
     customIdBukuField.value = '';
 
-    // === TAMBAHKAN BARIS INI UNTUK MENUTUP DROPDOWN SARAN ===
-    if(bukuSuggestions) {
-        bukuSuggestions.innerHTML = ''; 
-        bukuSuggestions.style.setProperty('display', 'none', 'important');
-    }
+    // Gunakan setTimeout kecil agar menang melawan event 'input' yang terpicu otomatis
+    setTimeout(() => {
+        if(bukuSuggestions) {
+            bukuSuggestions.innerHTML = ''; 
+            bukuSuggestions.style.setProperty('display', 'none', 'important');
+        }
+    }, 50);
 });
 
     // Event untuk deteksi input buku manual / pencarian via ID Buku
