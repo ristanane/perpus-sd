@@ -90,28 +90,39 @@ function inisialisasiSistem() {
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
-    // AUTOCOMPLETE BUKU
-    setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-        inputBuku.value = b[1]; 
-        idBukuField.value = b[0]; 
-        pengarangField.value = b[2]; 
-        pengarangField.readOnly = true; // Kunci kalau buku sudah ada
-        groupStok.style.display = 'none';
-    });
+    // Di bagian setup autocomplete buku (dalam inisialisasiSistem):
+setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
+    inputBuku.value = b[1]; // b[1] adalah Judul Buku
+    idBukuField.value = b[0]; // b[0] adalah ID Buku
+    pengarangField.value = b[2]; 
+    pengarangField.readOnly = true; 
+    groupStok.style.display = 'none'; // Sembunyikan input ID buku baru
+});
 
-    // Tambahkan event untuk mendeteksi input manual
-    inputBuku.addEventListener('input', function() {
-        // Jika input kosong atau tidak cocok, buka kunci pengarang
-        const val = this.value.toLowerCase();
-        const exists = masterBuku.some(b => b[1].toLowerCase() === val);
-        
-        if (!exists) {
-            pengarangField.readOnly = false;
-            pengarangField.value = ''; // Kosongkan biar bisa diisi manual
-            idBukuField.value = 'BARU'; // Tandai sebagai buku baru
-            groupStok.style.display = 'block'; // Tampilkan stok
-        }
-    });
+// Event untuk deteksi input buku manual / pencarian via ID Buku
+inputBuku.addEventListener('input', function() {
+    const val = this.value.toLowerCase().trim();
+    
+    // Cek apakah yang diketik cocok dengan Judul ATAU ID Buku yang ada di master
+    const matchedBuku = masterBuku.find(b => 
+        (b[1] && b[1].toLowerCase().includes(val)) || 
+        (b[0] && b[0].toLowerCase().includes(val))
+    );
+    
+    if (!matchedBuku && val !== "") {
+        // Jika tidak ditemukan di database, berarti ini Buku Baru
+        pengarangField.readOnly = false;
+        pengarangField.value = ''; 
+        idBukuField.value = 'BARU'; 
+        groupStok.style.display = 'block'; // Tampilkan input ID Buku baru
+    } else if (matchedBuku) {
+        // Jika diketik dan cocok dengan buku lama
+        idBukuField.value = matchedBuku[0];
+        pengarangField.value = matchedBuku[2];
+        pengarangField.readOnly = true;
+        groupStok.style.display = 'none';
+    }
+});
     
     setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
         inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
@@ -127,15 +138,15 @@ formPeminjaman.addEventListener('submit', async function(e) {
     if (!idSiswaField.value || !inputBuku.value) { alert("⚠️ Lengkapi data!"); return; }
     
     const payload = { 
-        action: "simpanPeminjaman", 
-        id_siswa: idSiswaField.value, 
-        nama_siswa: inputSiswa.value, 
-        kelas: kelasSiswaField.value, 
-        id_buku: idBukuField.value, // Kalau 'BARU', nanti di Apps Script kita proses
-        judul_buku: inputBuku.value, 
-        nama_pengarang: pengarangField.value,
-        stok: stokTotalField.value // Kirim juga stok kalau ada
-    };
+    action: "simpanPeminjaman", 
+    id_siswa: idSiswaField.value, 
+    nama_siswa: inputSiswa.value, 
+    kelas: kelasSiswaField.value, 
+    id_buku: idBukuField.value, // Bisa berupa ID asli atau 'BARU'
+    judul_buku: inputBuku.value, 
+    nama_pengarang: pengarangField.value,
+    custom_id_buku: document.getElementById('inputCustomIdBuku').value // ID buku baru dari user
+};
    
     try {
         const respon = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
@@ -226,7 +237,10 @@ function renderTabelPeminjaman(logArray) {
         tr.innerHTML = `
             <td><strong>${row[2]}</strong><br><small style="color:var(--text-muted);">ID: ${row[1]}</small></td>
             <td>Kelas ${row[3]}</td>
-            <td><strong>${row[5]}</strong></td>
+            <td>
+                <strong>${row[5]}</strong><br>
+                <small style="color: var(--text-muted);">ID: ${row[4]}</small>
+            </td>
             <td>${tglPinjam}</td>
             <td style="color:var(--accent-red); font-weight:600;">${tglKembali}</td>
             <td style="text-align: center; white-space: nowrap;">
