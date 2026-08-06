@@ -92,35 +92,49 @@ function inisialisasiSistem() {
     
     // Di bagian setup autocomplete buku (dalam inisialisasiSistem):
 setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-    inputBuku.value = b[1]; // b[1] adalah Judul Buku
-    idBukuField.value = b[0]; // b[0] adalah ID Buku
+    inputBuku.value = b[1]; // Judul Buku
+    idBukuField.value = b[0]; // ID Buku Lama
     pengarangField.value = b[2]; 
     pengarangField.readOnly = true; 
-    groupStok.style.display = 'none'; // Sembunyikan input ID buku baru
+    
+    // Sembunyikan karena memilih buku dari daftar
+    if(groupBukuBaru) groupBukuBaru.style.display = 'none';
+    customIdBukuField.value = '';
 });
 
-// Event untuk deteksi input buku manual / pencarian via ID Buku
+    // Event untuk deteksi input buku manual / pencarian via ID Buku
+// Tangkap elemen ID Buku Baru dari HTML
+const groupBukuBaru = document.getElementById('groupIdBukuBaru');
+const customIdBukuField = document.getElementById('inputCustomIdBuku');
+
+// Event saat mengetik di input buku
 inputBuku.addEventListener('input', function() {
     const val = this.value.toLowerCase().trim();
     
-    // Cek apakah yang diketik cocok dengan Judul ATAU ID Buku yang ada di master
+    // Cari apakah judul atau ID buku cocok dengan database masterBuku
     const matchedBuku = masterBuku.find(b => 
         (b[1] && b[1].toLowerCase().includes(val)) || 
         (b[0] && b[0].toLowerCase().includes(val))
     );
     
     if (!matchedBuku && val !== "") {
-        // Jika tidak ditemukan di database, berarti ini Buku Baru
+        // --- JIKA BUKU BELUM ADA (BUKU BARU) ---
         pengarangField.readOnly = false;
         pengarangField.value = ''; 
         idBukuField.value = 'BARU'; 
-        groupStok.style.display = 'block'; // Tampilkan input ID Buku baru
+        
+        // MUNCULKAN KOTAK ID BUKU BARU DI SINI
+        if(groupBukuBaru) groupBukuBaru.style.display = 'block'; 
+        
     } else if (matchedBuku) {
-        // Jika diketik dan cocok dengan buku lama
+        // --- JIKA BUKU SUDAH ADA (BUKU LAMA) ---
         idBukuField.value = matchedBuku[0];
         pengarangField.value = matchedBuku[2];
         pengarangField.readOnly = true;
-        groupStok.style.display = 'none';
+        
+        // SEMBUNYIKAN KOTAK ID BUKU BARU
+        if(groupBukuBaru) groupBukuBaru.style.display = 'none';
+        customIdBukuField.value = ''; // Kosongkan isinya
     }
 });
     
