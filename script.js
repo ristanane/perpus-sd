@@ -85,72 +85,92 @@ function setupAutocomplete(inputEl, suggestionEl, dataArray, onSelectCallback) {
 
 // FUNGSI INISIALISASI (Panggil sekali aja di dalam muatDataAwal)
 function inisialisasiSistem() {
+    // 1. Setup Autocomplete untuk Siswa (Tetap seperti semula)
     setupAutocomplete(inputSiswa, siswaSuggestions, masterSiswa, (s) => { 
         inputSiswa.value = s[1]; idSiswaField.value = s[0]; boxIdSiswa.innerText = s[0];
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
-    // 2. Setup Autocomplete untuk Buku (Disamakan persis polanya dengan siswa)
-    setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-        inputBuku.value = b[1];         // Judul Buku
-        idBukuField.value = b[0];       // ID Buku Lama
-        pengarangField.value = b[2];    // Nama Pengarang
-        pengarangField.readOnly = true; // Kunci pengarang karena dari database
-        
-        // Sembunyikan form buku baru & bersihkan custom ID
-        if (groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
-        if (customIdBukuField) customIdBukuField.value = '';
-    });
-
-    // 3. Event terpisah untuk mendeteksi ketikan manual (Buku Baru / Pencarian)
-    if (inputBuku) {
-        inputBuku.addEventListener('input', function() {
-            const val = this.value.toLowerCase().trim();
+    // 2. Setup Khusus Buku (Mandiri & Mulus seperti Siswa)
+    if (inputBuku && bukuSuggestions) {
+        function cariBuku() {
+            const val = inputBuku.value.toLowerCase().trim();
+            bukuSuggestions.innerHTML = '';
             
-            if (val === "") {
-                if (idBukuField) idBukuField.value = '';
-                if (pengarangField) { pengarangField.value = ''; pengarangField.readOnly = false; }
-                if (groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
+            if (!val || masterBuku.length === 0) {
+                bukuSuggestions.style.display = 'none';
                 return;
             }
-
-            // Cek apakah judul yang diketik sudah ada di masterBuku
-            const matchedBuku = masterBuku.find(b => b[1] && b[1].toLowerCase() === val);
             
-            if (!matchedBuku) {
-                // Jika diketik manual dan belum ada di database -> Berarti BUKU BARU
+            // Filter berdasarkan judul (index 1) atau ID buku (index 0)
+            const filtered = masterBuku.filter(item => 
+                (item[1] && String(item[1]).toLowerCase().includes(val)) ||
+                (item[0] && String(item[0]).toLowerCase().includes(val))
+            );
+            
+            if (filtered.length === 0) {
+                bukuSuggestions.style.display = 'none';
+                
+                // Jika diketik manual dan tidak ada di database -> BUKU BARU
                 if (pengarangField) {
                     pengarangField.readOnly = false;
                     pengarangField.value = ''; 
                 }
                 if (idBukuField) idBukuField.value = 'BARU'; 
-                
-                // Munculkan kolom input ID Buku Baru
-                if (groupBukuBaru) {
-                    groupBukuBaru.style.setProperty('display', 'block', 'important');
-                }
-            } else {
-                // Jika ternyata yang diketik sama persis dengan buku lama
-                if (idBukuField) idBukuField.value = matchedBuku[0];
-                if (pengarangField) {
-                    pengarangField.value = matchedBuku[2];
-                    pengarangField.readOnly = true;
-                }
-                if (groupBukuBaru) {
-                    groupBukuBaru.style.setProperty('display', 'none', 'important');
-                }
-                if (customIdBukuField) {
-                    customIdBukuField.value = '';
-                }
+                if (groupBukuBaru) groupBukuBaru.style.setProperty('display', 'block', 'important');
+                return;
             }
-        });
-    }    
+            
+            // Render pilihan dropdown buku
+            filtered.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.style.padding = '10px'; 
+                div.style.background = '#fff'; 
+                div.style.cursor = 'pointer'; 
+                div.style.border = '1px solid #ccc';
+                div.innerHTML = `<strong>${b[1]}</strong> <small style="color:var(--text-muted);">(ID: ${b[0]})</small>`;
+                
+                // Ketika item dropdown diklik
+                div.onmousedown = function(e) { 
+                    e.preventDefault(); 
+                    
+                    // Masukkan data buku lama dengan aman
+                    inputBuku.value = b[1];         // Judul Buku
+                    if (idBukuField) idBukuField.value = b[0];       // ID Buku Lama
+                    if (pengarangField) {
+                        pengarangField.value = b[2]; // Nama Pengarang
+                        pengarangField.readOnly = true; 
+                    }
+                    
+                    // Sembunyikan form buku baru & bersihkan custom ID
+                    if (groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
+                    if (customIdBukuField) customIdBukuField.value = '';
+                    
+                    // Tutup dropdown seketika
+                    bukuSuggestions.innerHTML = ''; 
+                    bukuSuggestions.style.display = 'none'; 
+                };
+                
+                bukuSuggestions.appendChild(div);
+            });
+            
+            bukuSuggestions.style.display = 'block';
+        }
+
+        // Pasang event listener untuk pencarian buku
+        inputBuku.addEventListener('input', cariBuku);
+        inputBuku.addEventListener('keyup', cariBuku);
+        inputBuku.addEventListener('focus', cariBuku);
+        inputBuku.addEventListener('blur', () => setTimeout(() => { bukuSuggestions.style.display = 'none'; }, 200));
+    }
+    
+    // 3. Setup Autocomplete untuk Tamu (Tetap seperti semula)
     setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
         inputTamu.value = s[1]; idTamuField.value = s[0]; boxIdTamu.innerText = s[0];
         kelasTamuField.value = s[2]; boxKelasTamu.innerText = s[2];
     });
 }
-
 // ==========================================
 // 4. POST EVENT HANDLING
 // ==========================================
