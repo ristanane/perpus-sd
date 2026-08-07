@@ -90,66 +90,77 @@ function inisialisasiSistem() {
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
-    // Di bagian setup autocomplete buku (dalam inisialisasiSistem):
-// Variabel penanda untuk membedakan ketikan manual vs pilihan dropdown
+    // Variabel penanda untuk mengunci event manual saat item diklik
 let sedangMemilihBuku = false;
 
+// Setup Autocomplete Buku
 setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-    sedangMemilihBuku = true; // Kunci penanda
+    sedangMemilihBuku = true;
     
-    inputBuku.value = b[1]; // Judul Buku
-    idBukuField.value = b[0]; // ID Buku Lama
-    pengarangField.value = b[2]; 
-    pengarangField.readOnly = true; 
-     
-    // Sembunyikan karena memilih buku dari daftar
-    if(groupBukuBaru) groupBukuBaru.style.display = 'none';
-    customIdBukuField.value = '';
+    // 1. Masukkan semua data buku lama secara pasti
+    inputBuku.value = b[1];         // Judul Buku
+    if(idBukuField) idBukuField.value = b[0];       // ID Buku Lama
+    if(pengarangField) {
+        pengarangField.value = b[2]; // Nama Pengarang
+        pengarangField.readOnly = true; 
+    }
+    
+    // 2. Sembunyikan elemen buku baru & reset custom ID
+    if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
+    if(customIdBukuField) customIdBukuField.value = '';
 
-    // Tutup paksa dropdown saran
+    // 3. Tutup dan kosongkan dropdown paksa
     if(bukuSuggestions) {
         bukuSuggestions.innerHTML = ''; 
         bukuSuggestions.style.setProperty('display', 'none', 'important');
     }
 
-    // Lepas kembali kunci setelah proses selesai
+    // 4. Buka kembali kunci setelah selesai
     setTimeout(() => {
         sedangMemilihBuku = false;
-    }, 100);
+    }, 150);
 });
 
-// Event untuk deteksi input buku manual / pencarian via ID Buku
+// Event untuk deteksi ketikan manual / buku baru
 if (inputBuku) {
     inputBuku.addEventListener('input', function() {
-        // Jika perubahan nilai berasal dari klik dropdown, abaikan event input ini!
+        // Jika sedang dalam proses klik dropdown, abaikan event ini sepenuhnya
         if (sedangMemilihBuku) return;
 
-        // Ketika mengetik manual, pastikan dropdown saran bisa muncul lagi
-        if (bukuSuggestions) {
-            bukuSuggestions.style.removeProperty('display');
-        }
-        
         const val = this.value.toLowerCase().trim();
         
+        // Jika input dikosongkan oleh pengguna
+        if (val === "") {
+            if(idBukuField) idBukuField.value = '';
+            if(pengarangField) {
+                pengarangField.value = '';
+                pengarangField.readOnly = false;
+            }
+            if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
+            return;
+        }
+
         // Cek apakah ada yang cocok di masterBuku (berdasarkan Judul atau ID)
         const matchedBuku = masterBuku.find(b => 
             (b[1] && b[1].toLowerCase().includes(val)) || 
             (b[0] && b[0].toLowerCase().includes(val))
         );
         
-        if (!matchedBuku && val !== "") {
+        if (!matchedBuku) {
             // === BUKU BARU ===
-            pengarangField.readOnly = false;
-            pengarangField.value = ''; 
-            idBukuField.value = 'BARU'; 
+            if(pengarangField) {
+                pengarangField.readOnly = false;
+                pengarangField.value = ''; 
+            }
+            if(idBukuField) idBukuField.value = 'BARU'; 
             
             if (groupBukuBaru) {
                 groupBukuBaru.style.setProperty('display', 'block', 'important');
             }
         } else {
-            // === BUKU LAMA ===
-            if (matchedBuku) {
-                idBukuField.value = matchedBuku[0];
+            // === BUKU LAMA (jika diketik manual mirip) ===
+            if(idBukuField) idBukuField.value = matchedBuku[0];
+            if(pengarangField) {
                 pengarangField.value = matchedBuku[2];
                 pengarangField.readOnly = true;
             }
