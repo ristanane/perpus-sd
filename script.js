@@ -13,6 +13,7 @@ const kelasSiswaField = document.getElementById('kelasSiswa');
 const boxKelasSiswa = document.getElementById('boxKelasSiswa');
 const siswaSuggestions = document.getElementById('siswaSuggestions');
 const inputBuku = document.getElementById('inputBuku');
+const idBukuField = document.getElementById('idBuku');
 const pengarangField = document.getElementById('pengarangBuku');
 const inputBukuEl = document.getElementById('inputBuku');
 const groupBukuBaru = document.getElementById('groupIdBukuBaru');
