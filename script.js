@@ -91,18 +91,20 @@ function inisialisasiSistem() {
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
-    // 2. Setup Autocomplete untuk Buku (Menggunakan fungsi setupAutocomplete standar)
+    // 2. Setup Autocomplete untuk Buku
     setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-        inputBuku.value = b[1];         // Judul Buku
-        idBukuField.value = b[0];       // ID Buku Lama
-        pengarangField.value = b[2];    // Nama Pengarang
-        pengarangField.readOnly = true; // Kunci pengarang
+        inputBuku.value = b[1];         // Judul Buku (Kolom B)
+        idBukuField.value = b[0];       // ID Buku (Kolom A)
+        
+        if (pengarangField) {
+            pengarangField.value = b[2]; // Nama Pengarang (Kolom C)
+            pengarangField.readOnly = true; 
+        }
         
         // Sembunyikan form buku baru & bersihkan custom ID
         if (groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
         if (customIdBukuField) customIdBukuField.value = '';
     });
-
     // 3. Event input terpisah khusus untuk mendeteksi Buku Baru saat diketik manual
     if (inputBuku) {
         inputBuku.addEventListener('input', function() {
