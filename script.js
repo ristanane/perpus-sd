@@ -90,88 +90,88 @@ function inisialisasiSistem() {
         kelasSiswaField.value = s[2]; boxKelasSiswa.innerText = s[2]; 
     });
     
-    // Variabel penanda untuk mengunci event manual saat item diklik
-let sedangMemilihBuku = false;
-
-// Setup Autocomplete Buku
-setupAutocomplete(inputBuku, bukuSuggestions, masterBuku, (b) => { 
-    sedangMemilihBuku = true;
+    // === PENCARIAN & DROPDOWN BUKU MANDIRI (Tanpa setupAutocomplete) ===
+if (inputBuku && bukuSuggestions) {
     
-    // 1. Masukkan semua data buku lama secara pasti
-    inputBuku.value = b[1];         // Judul Buku
-    if(idBukuField) idBukuField.value = b[0];       // ID Buku Lama
-    if(pengarangField) {
-        pengarangField.value = b[2]; // Nama Pengarang
-        pengarangField.readOnly = true; 
-    }
-    
-    // 2. Sembunyikan elemen buku baru & reset custom ID
-    if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
-    if(customIdBukuField) customIdBukuField.value = '';
-
-    // 3. Tutup dan kosongkan dropdown paksa
-    if(bukuSuggestions) {
-        bukuSuggestions.innerHTML = ''; 
-        bukuSuggestions.style.setProperty('display', 'none', 'important');
-    }
-
-    // 4. Buka kembali kunci setelah selesai
-    setTimeout(() => {
-        sedangMemilihBuku = false;
-    }, 150);
-});
-
-// Event untuk deteksi ketikan manual / buku baru
-if (inputBuku) {
+    // 1. Saat mengetik / mencari
     inputBuku.addEventListener('input', function() {
-        // Jika sedang dalam proses klik dropdown, abaikan event ini sepenuhnya
-        if (sedangMemilihBuku) return;
-
         const val = this.value.toLowerCase().trim();
         
-        // Jika input dikosongkan oleh pengguna
         if (val === "") {
+            bukuSuggestions.innerHTML = '';
+            bukuSuggestions.style.display = 'none';
             if(idBukuField) idBukuField.value = '';
-            if(pengarangField) {
-                pengarangField.value = '';
-                pengarangField.readOnly = false;
-            }
+            if(pengarangField) { pengarangField.value = ''; pengarangField.readOnly = false; }
             if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
             return;
         }
 
-        // Cek apakah ada yang cocok di masterBuku (berdasarkan Judul atau ID)
-        const matchedBuku = masterBuku.find(b => 
-            (b[1] && b[1].toLowerCase().includes(val)) || 
-            (b[0] && b[0].toLowerCase().includes(val))
+        // Filter data dari masterBuku
+        const filtered = masterBuku.filter(b => 
+            (b[1] && String(b[1]).toLowerCase().includes(val)) || 
+            (b[0] && String(b[0]).toLowerCase().includes(val))
         );
-        
-        if (!matchedBuku) {
-            // === BUKU BARU ===
-            if(pengarangField) {
-                pengarangField.readOnly = false;
-                pengarangField.value = ''; 
-            }
-            if(idBukuField) idBukuField.value = 'BARU'; 
+
+        // Render manual pilihan dropdown-nya
+        bukuSuggestions.innerHTML = '';
+        if (filtered.length === 0) {
+            bukuSuggestions.style.display = 'none';
             
-            if (groupBukuBaru) {
-                groupBukuBaru.style.setProperty('display', 'block', 'important');
-            }
+            // Jika tidak ada di master, berarti Buku Baru
+            if(pengarangField) { pengarangField.readOnly = false; pengarangField.value = ''; }
+            if(idBukuField) idBukuField.value = 'BARU';
+            if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'block', 'important');
         } else {
-            // === BUKU LAMA (jika diketik manual mirip) ===
-            if(idBukuField) idBukuField.value = matchedBuku[0];
-            if(pengarangField) {
-                pengarangField.value = matchedBuku[2];
-                pengarangField.readOnly = true;
-            }
+            // Jika ada kecocokan, tampilkan list dropdown
+            bukuSuggestions.style.display = 'block';
             
-            if (groupBukuBaru) {
-                groupBukuBaru.style.setProperty('display', 'none', 'important');
-            }
-            if (customIdBukuField) {
-                customIdBukuField.value = '';
+            filtered.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.style.padding = '10px';
+                div.style.background = '#fff';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.innerHTML = `<strong>${b[1]}</strong> <small style="color:var(--text-muted);">(ID: ${b[0]})</small>`;
+                
+                // Saat salah satu item di dropdown diklik
+                div.onmousedown = function(e) {
+                    e.preventDefault();
+                    
+                    inputBuku.value = b[1];         // Judul Buku
+                    if(idBukuField) idBukuField.value = b[0];       // ID Buku Lama
+                    if(pengarangField) {
+                        pengarangField.value = b[2]; // Nama Pengarang
+                        pengarangField.readOnly = true;
+                    }
+                    
+                    // Sembunyikan buku baru & bersihkan custom ID
+                    if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
+                    if(customIdBukuField) customIdBukuField.value = '';
+                    
+                    // Tutup dropdown
+                    bukuSuggestions.innerHTML = '';
+                    bukuSuggestions.style.display = 'none';
+                };
+                
+                bukuSuggestions.appendChild(div);
+            });
+            
+            // Cek juga apakah teks yang diketik persis sama dengan buku lama
+            const exactMatch = masterBuku.find(b => b[1].toLowerCase() === val || b[0].toLowerCase() === val);
+            if (exactMatch) {
+                if(idBukuField) idBukuField.value = exactMatch[0];
+                if(pengarangField) { pengarangField.value = exactMatch[2]; pengarangField.readOnly = true; }
+                if(groupBukuBaru) groupBukuBaru.style.setProperty('display', 'none', 'important');
             }
         }
+    });
+
+    // Sembunyikan dropdown jika klik di luar / kehilangan fokus
+    inputBuku.addEventListener('blur', () => {
+        setTimeout(() => {
+            bukuSuggestions.style.display = 'none';
+        }, 200);
     });
 }    
     setupAutocomplete(inputTamu, tamuSuggestions, masterSiswa, (s) => { 
